@@ -10,15 +10,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.titanium.moodmusic.R;
-import com.titanium.moodmusic.data.model.Artist;
+import com.titanium.moodmusic.data.model.artists.Artist;
+import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.utils.ImageLoadUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsHolder> {
 
-    private List<Artist> artistList;
-    private View.OnClickListener onClickListenerArtist;
+    private List<Artist> artistList = new ArrayList<>();
+    private ItemArtistClickListener artistItemClickListener;
     private Context context;
 
     public ArtistsAdapter(Context context) {
@@ -36,10 +38,17 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsH
 
     @Override
     public void onBindViewHolder(@NonNull ArtistsHolder artistsHolder, int i) {
-        Artist itemArtist = artistList.get(i);
+        final Artist itemArtist = artistList.get(i);
         ImageLoadUtils.loadImage(context,itemArtist.getImageUrl()
-                ,0,artistsHolder.artistsImageView);
+                ,R.mipmap.noavatar,artistsHolder.artistsImageView);
         artistsHolder.artistsName.setText(itemArtist.getName());
+
+        artistsHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                artistItemClickListener.onItemClick(itemArtist);
+            }
+        });
     }
 
     @Override
@@ -51,8 +60,16 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsH
     }
 
     public void setArtistList(List<Artist> artistList){
-        this.artistList = artistList;
+        for(Artist artist : artistList){
+            if (checkUniqueArtist(artist))
+                this.artistList.add(artist);
+        }
         notifyDataSetChanged();
+    }
+
+    public void setArtist(Artist artist){
+        this.artistList.add(artist);
+        notifyItemChanged(getItemCount() - 1);
     }
 
     public Artist getArtistByPosition(int position){
@@ -66,15 +83,32 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsH
         }
     }
 
-    public static class ArtistsHolder extends RecyclerView.ViewHolder{
+    private boolean checkUniqueArtist(Artist artistForAnalyse){
+        for (Artist artist : this.artistList){
+            if (artistForAnalyse.getMbid().equalsIgnoreCase(artist.getMbid()))
+                return false;
+        }
+
+        return true;
+    }
+
+    public void setArtistItemClickListener(ItemArtistClickListener itemClickListener){
+        this.artistItemClickListener = itemClickListener;
+    }
+
+     static class ArtistsHolder extends RecyclerView.ViewHolder{
 
         ImageView artistsImageView;
         TextView artistsName;
 
-        public ArtistsHolder(@NonNull View itemView) {
+         ArtistsHolder(@NonNull View itemView) {
             super(itemView);
             artistsImageView = itemView.findViewById(R.id.img_artist);
             artistsName = itemView.findViewById(R.id.txt_artist_name);
         }
+    }
+
+    public interface ItemArtistClickListener{
+        void onItemClick(Artist track);
     }
 }

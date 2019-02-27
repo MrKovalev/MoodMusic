@@ -1,4 +1,4 @@
-package com.titanium.moodmusic.data.model;
+package com.titanium.moodmusic.data.model.artists;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -69,7 +69,7 @@ public class Artist {
     public String getImageUrl(){
         if (getImages() != null && !images.isEmpty()){
             for (ImageItem imageItem : images){
-                if (imageItem.getSize().equalsIgnoreCase("large")){
+                if (imageItem.getSize().equalsIgnoreCase("mega")){
                     return imageItem.getUrl();
                 }
             }

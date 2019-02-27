@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.titanium.moodmusic.R;
@@ -41,16 +42,19 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int i) {
         switch (i){
             case ARTISTS_IDX:{
+                Log.d("TAG","CREATE FRAGMENT = "+0);
                 Fragment fr = ArtistsFragment.newInstance();
                 fragments.put(i,new WeakReference<Fragment>(fr));
                 return fr;
             }
             case TRACKS_IDX:{
+                Log.d("TAG","CREATE FRAGMENT = "+1);
                 Fragment fr = TracksFragment.newInstance();
                 fragments.put(i,new WeakReference<Fragment>(fr));
                 return fr;
             }
             case FAVORITE_ALBUMS_IDX:{
+                Log.d("TAG","CREATE FRAGMENT = "+2);
                 Fragment fr = FavoriteAlbumsFragment.newInstance();
                 fragments.put(i,new WeakReference<Fragment>(fr));
                 return fr;
@@ -83,6 +87,7 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         super.destroyItem(container, position, object);
+        Log.d("TAG","DESTROY FRAGMENT ="+position);
         fragments.remove(position);
     }
 

@@ -1,6 +1,9 @@
 package com.titanium.moodmusic.data.api.retrofit;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.titanium.moodmusic.data.api.Constants;
+import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.network.LastFmAPI;
 
 import okhttp3.OkHttpClient;
@@ -24,10 +27,14 @@ public class LastFmRetrofitClient {
     }
 
     private Retrofit retrofitBuilder(){
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Track.class, new Track.ArtistStateDeserializer())
+                .create();
+
         return new Retrofit
                 .Builder()
                 .baseUrl(Constants.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }
 

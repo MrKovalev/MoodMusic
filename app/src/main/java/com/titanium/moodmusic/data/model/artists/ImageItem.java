@@ -1,4 +1,4 @@
-package com.titanium.moodmusic.data.model;
+package com.titanium.moodmusic.data.model.artists;
 
 import com.google.gson.annotations.SerializedName;
 

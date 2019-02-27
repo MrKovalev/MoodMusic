@@ -9,8 +9,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 
 import com.titanium.moodmusic.R;
@@ -32,8 +32,11 @@ public class MusicActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+
         viewPager = findViewById(R.id.vp_main);
         tableLayout = findViewById(R.id.tl_main);
+
         drawerLayout = findViewById(R.id.drawer_settings);
         navigationView = findViewById(R.id.nav_settings);
 
@@ -42,15 +45,10 @@ public class MusicActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.music_toolbar_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         return false;
     }
+
 
     private void initFragments(){
         mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),this);
@@ -65,7 +63,7 @@ public class MusicActivity extends AppCompatActivity
         if (actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_nav);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white);
         }
 
         if (drawerLayout != null){
@@ -75,6 +73,11 @@ public class MusicActivity extends AppCompatActivity
             toggle.syncState();
         }
 
-        //navigationView.setNavigationItemSelectedListener(this);
+        if (navigationView != null)
+            navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    public ViewPager getViewPager(){
+        return this.viewPager;
     }
 }

@@ -5,22 +5,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.fragments.favoriteAlbums.FavoriteAlbumsFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_favorite_albums"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/progress_favorite_albums"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Playlist"/>
 
-    <include
-        android:id="@+id/empty_layout_favorite"
-        layout="@layout/empty_results"
-        android:visibility="gone">
-    </include>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_favorite_albums"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
+        <ProgressBar
+            android:id="@+id/progress_favorite_albums"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <include
+            android:id="@+id/empty_layout_favorite"
+            layout="@layout/empty_results"
+            android:visibility="gone">
+        </include>
+    </LinearLayout>
 </FrameLayout>

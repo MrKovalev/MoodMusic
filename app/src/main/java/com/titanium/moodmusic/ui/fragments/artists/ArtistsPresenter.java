@@ -2,9 +2,9 @@ package com.titanium.moodmusic.ui.fragments.artists;
 
 import android.util.Log;
 
-import com.titanium.moodmusic.data.api.Constants;
-import com.titanium.moodmusic.data.model.Artist;
-import com.titanium.moodmusic.data.model.ArtistsResponce;
+import com.titanium.moodmusic.data.model.artists.Artist;
+import com.titanium.moodmusic.data.model.responces.SearchArtistResponce;
+import com.titanium.moodmusic.data.model.responces.TopChartArtistsResponce;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,31 +23,86 @@ public class ArtistsPresenter implements IArtistsPresenter {
         this.iArtistsInteractor = iArtistsInteractor;
     }
 
-
     @Override
     public void onDestroy() {
 
     }
 
     @Override
-    public void getTopChartArtists(int limit, String apiKey) {
-        Log.d("TAG","load data from presenter");
+    public void getTopChartArtists(int page,int limit, String apiKey) {
         iArtistsView.showProgress();
         iArtistsView.hideEmpty();
 
-        Call<ArtistsResponce> listCall = iArtistsInteractor.getTopChartArtists(Constants.TOP_ITEMS_LIMIT,Constants.API_KEY);
-        listCall.enqueue(new Callback<ArtistsResponce>() {
+        Call<TopChartArtistsResponce> listCall = iArtistsInteractor.getTopChartArtists(page,limit,apiKey);
+        listCall.enqueue(new Callback<TopChartArtistsResponce>() {
             @Override
-            public void onResponse(Call<ArtistsResponce> call, Response<ArtistsResponce> response) {
-                //push to view
-                iArtistsView.loadArtists(response.body().getArtistListResponce().getArtistList());
-                iArtistsView.hideProgress();
+            public void onResponse(Call<TopChartArtistsResponce> call, Response<TopChartArtistsResponce> response) {
+
+                if (response.isSuccessful()){
+                    List<Artist> loadedArtistsList = new ArrayList<>();
+
+                    try {
+                        loadedArtistsList = response.body().getArtistListResponce().getArtistList();
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    iArtistsView.loadArtists(loadedArtistsList);
+                    iArtistsView.hideProgress();
+                } else {
+                    iArtistsView.showError();
+                    iArtistsView.hideProgress();
+                }
             }
 
             @Override
-            public void onFailure(Call<ArtistsResponce> call, Throwable t) {
+            public void onFailure(Call<TopChartArtistsResponce> call, Throwable t) {
+                t.printStackTrace();
                iArtistsView.showError();
+               iArtistsView.hideProgress();
             }
         });
+        iArtistsView.searchArtists(ArtistsGenerator.generateArtists());
+    }
+
+    @Override
+    public void searchArtist(int page, int limit, String name, String apiKey) {
+        iArtistsView.showProgress();
+        iArtistsView.hideEmpty();
+
+        Call<SearchArtistResponce> listCall = iArtistsInteractor.searchArtist(page,limit,name,apiKey);
+        listCall.enqueue(new Callback<SearchArtistResponce>() {
+            @Override
+            public void onResponse(Call<SearchArtistResponce> call, Response<SearchArtistResponce> response) {
+
+                if (response.isSuccessful()){
+                    List<Artist> loadedArtistsList = new ArrayList<>();
+
+                    try {
+                        loadedArtistsList = response.body()
+                                .getSearchArtist()
+                                .getArtistListMatches()
+                                .getArtistList();
+
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    iArtistsView.hideProgress();
+                    iArtistsView.searchArtists(loadedArtistsList);
+                } else {
+                    iArtistsView.showError();
+                    iArtistsView.hideProgress();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SearchArtistResponce> call, Throwable t) {
+                t.printStackTrace();
+                iArtistsView.showError();
+                iArtistsView.hideProgress();
+            }
+        });
+        iArtistsView.searchArtists(ArtistsGenerator.generateArtists());
     }
 }
