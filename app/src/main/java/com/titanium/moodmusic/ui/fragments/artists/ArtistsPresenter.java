@@ -29,27 +29,28 @@ public class ArtistsPresenter implements IArtistsPresenter {
     }
 
     @Override
-    public void getTopChartArtists(int page,int limit, String apiKey) {
+    public void getTopChartArtists(int page, int limit, String apiKey) {
         iArtistsView.showProgress();
         iArtistsView.hideEmpty();
 
-        Call<TopChartArtistsResponce> listCall = iArtistsInteractor.getTopChartArtists(page,limit,apiKey);
+        Call<TopChartArtistsResponce> listCall = iArtistsInteractor.getTopChartArtists(page, limit, apiKey);
         listCall.enqueue(new Callback<TopChartArtistsResponce>() {
             @Override
             public void onResponse(Call<TopChartArtistsResponce> call, Response<TopChartArtistsResponce> response) {
 
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     List<Artist> loadedArtistsList = new ArrayList<>();
 
                     try {
                         loadedArtistsList = response.body().getArtistListResponce().getArtistList();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                     iArtistsView.loadArtists(loadedArtistsList);
                     iArtistsView.hideProgress();
                 } else {
+
                     iArtistsView.showError();
                     iArtistsView.hideProgress();
                 }
@@ -58,11 +59,10 @@ public class ArtistsPresenter implements IArtistsPresenter {
             @Override
             public void onFailure(Call<TopChartArtistsResponce> call, Throwable t) {
                 t.printStackTrace();
-               iArtistsView.showError();
-               iArtistsView.hideProgress();
+                iArtistsView.showError();
+                iArtistsView.hideProgress();
             }
         });
-        iArtistsView.searchArtists(ArtistsGenerator.generateArtists());
     }
 
     @Override
@@ -70,12 +70,13 @@ public class ArtistsPresenter implements IArtistsPresenter {
         iArtistsView.showProgress();
         iArtistsView.hideEmpty();
 
-        Call<SearchArtistResponce> listCall = iArtistsInteractor.searchArtist(page,limit,name,apiKey);
+        Log.d("TAG", name);
+        Call<SearchArtistResponce> listCall = iArtistsInteractor.searchArtist(page, limit, name, apiKey);
         listCall.enqueue(new Callback<SearchArtistResponce>() {
             @Override
             public void onResponse(Call<SearchArtistResponce> call, Response<SearchArtistResponce> response) {
 
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     List<Artist> loadedArtistsList = new ArrayList<>();
 
                     try {
@@ -84,13 +85,14 @@ public class ArtistsPresenter implements IArtistsPresenter {
                                 .getArtistListMatches()
                                 .getArtistList();
 
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                     iArtistsView.hideProgress();
                     iArtistsView.searchArtists(loadedArtistsList);
                 } else {
+                    Log.d("TAG", "UNKNOWN ERROR 3");
                     iArtistsView.showError();
                     iArtistsView.hideProgress();
                 }
@@ -103,6 +105,6 @@ public class ArtistsPresenter implements IArtistsPresenter {
                 iArtistsView.hideProgress();
             }
         });
-        iArtistsView.searchArtists(ArtistsGenerator.generateArtists());
+        //iArtistsView.searchArtists(ArtistsGenerator.generateArtists());
     }
 }

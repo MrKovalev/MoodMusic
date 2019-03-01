@@ -10,6 +10,9 @@ public interface IFavoriteAlbumsView {
 
     void loadAlbums(List<FavoriteAlbum> albumList);
     void searchAlbums(List<FavoriteAlbum> albumList);
+    void addAlbum(FavoriteAlbum favoriteAlbum);
+    void editAlbum(FavoriteAlbum favoriteAlbum);
+    void deleteAlbum(int position);
 
     void showError();
     void showEmpty();

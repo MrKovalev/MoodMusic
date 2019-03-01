@@ -10,14 +10,21 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
+import com.titanium.moodmusic.ui.fragments.artists.ArtistsFragment;
+import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
+import com.titanium.moodmusic.utils.RateUtils;
+import com.titanium.moodmusic.utils.ShareUtils;
 
 public class MusicActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+                implements ArtistsFragment.onFragmentInteractionListener {
 
     private TabLayout tableLayout;
     private ViewPager viewPager;
@@ -25,6 +32,7 @@ public class MusicActivity extends AppCompatActivity
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,18 +45,29 @@ public class MusicActivity extends AppCompatActivity
         viewPager = findViewById(R.id.vp_main);
         tableLayout = findViewById(R.id.tl_main);
 
-        drawerLayout = findViewById(R.id.drawer_settings);
-        navigationView = findViewById(R.id.nav_settings);
-
         setupToolbarAndNavigationMenu();
         initFragments();
     }
 
+
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        return false;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.music_toolbar_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.nav_share:
+                startActivity(ShareUtils.shareAppAction());
+                break;
+            case R.id.nav_rate:
+                startActivity(RateUtils.findApplicationsForRate());
+                break;
+        }
+        return false;
+    }
 
     private void initFragments(){
         mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),this);
@@ -60,24 +79,15 @@ public class MusicActivity extends AppCompatActivity
     private void setupToolbarAndNavigationMenu(){
         ActionBar actionBar = getSupportActionBar();
 
-        if (actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        if (actionBar != null)
             actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white);
-        }
-
-        if (drawerLayout != null){
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout,toolbar,
-                    R.string.open_drawer, R.string.close_drawer);
-            drawerLayout.addDrawerListener(toggle);
-            toggle.syncState();
-        }
-
-        if (navigationView != null)
-            navigationView.setNavigationItemSelectedListener(this);
     }
 
-    public ViewPager getViewPager(){
-        return this.viewPager;
+    @Override
+    public void onFragmentInteraction(Bundle data) {
+        TracksFragment fragment = (TracksFragment) (mainPagerAdapter.getCreatedFragment(MainPagerAdapter.TRACKS_IDX)).get();
+
+        if (fragment != null)
+            fragment.setBundle(data);
     }
 }

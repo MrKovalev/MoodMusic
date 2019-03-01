@@ -45,11 +45,9 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
 
         if (itemTrack.getArtist() instanceof String){
             String artistName = (String) itemTrack.getArtist();
-            Log.d("TAG", "GENERIC name privitive = "+artistName);
             tracksHolder.nameArtist.setText(artistName);
         } else {
             Artist artist = (Artist) itemTrack.getArtist();
-            Log.d("TAG", "GENERIC name compl = "+artist.getName());
             tracksHolder.nameArtist.setText(artist.getName());
         }
 
@@ -84,7 +82,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
         notifyItemChanged(getItemCount() - 1);
     }
 
-    public void clearArtistList(){
+    public void clearTracktList(){
         if (trackList != null){
             trackList.clear();
             notifyDataSetChanged();

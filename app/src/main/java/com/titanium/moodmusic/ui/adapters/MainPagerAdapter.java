@@ -91,5 +91,7 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
         fragments.remove(position);
     }
 
-
+    public WeakReference<Fragment> getCreatedFragment(int position){
+        return fragments.get(position);
+    }
 }

@@ -1,8 +1,10 @@
 package com.titanium.moodmusic.ui.fragments.artists;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,16 +25,18 @@ import com.titanium.moodmusic.ui.activities.MusicActivity;
 import com.titanium.moodmusic.ui.adapters.ArtistsAdapter;
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
 import com.titanium.moodmusic.ui.fragments.BaseFragment;
+import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ArtistsFragment extends BaseFragment
-            implements IArtistsView, SearchView.OnQueryTextListener, SearchView.OnCloseListener{
+        implements IArtistsView, SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 
     private RecyclerView artistsRecyclerView;
     private SearchView searchView;
     private ProgressBar progressBarMain;
-    private OnFragmentInteractionListener listener;
+    private onFragmentInteractionListener interactionListener;
     private View emptyLayout;
 
     private IArtistsPresenter artistsPresenter;
@@ -42,30 +46,43 @@ public class ArtistsFragment extends BaseFragment
     private int currentPageTopChartArtists = Constants.DEFAULT_PAGE_CHART;
     private int currentPageSearch = Constants.DEFAULT_PAGE_CHART;
 
-    public ArtistsFragment(){}
+    public ArtistsFragment() {
+    }
 
-    public static ArtistsFragment newInstance(){
+    public static ArtistsFragment newInstance() {
         return new ArtistsFragment();
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            interactionListener = (onFragmentInteractionListener) context;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        artistsPresenter = new ArtistsPresenter(this,new ArtistsInteractor(LastFmRetrofitClient.getInstance().getLastFmApi()));
+        artistsPresenter = new ArtistsPresenter(this, new ArtistsInteractor(LastFmRetrofitClient.getInstance().getLastFmApi()));
         artistsAdapter = new ArtistsAdapter(getContext());
         artistsAdapter.setArtistItemClickListener(new ArtistsAdapter.ItemArtistClickListener() {
             @Override
-            public void onItemClick(Artist track) {
+            public void onItemClick(Artist artist) {
 
-                //set flag to activity to update tracks fragment
+                Bundle bundle = new Bundle();
+                bundle.putString(TracksFragment.EXTRA_ARIST_NAME, artist.getName());
+                bundle.putBoolean(TracksFragment.EXTRA_CAN_SHOW_TRACKS_BY_ARTIST, true);
+                interactionListener.onFragmentInteraction(bundle);
 
-                //switch to tracks
-                MusicActivity activity = (MusicActivity) getActivity();
-
-                if (activity.getViewPager() != null){
-                    activity.getViewPager().setCurrentItem(MainPagerAdapter.TRACKS_IDX);
-                }
+                ViewPager viewPager = getActivity().findViewById(R.id.vp_main);
+                if (viewPager != null)
+                    viewPager.setCurrentItem(MainPagerAdapter.TRACKS_IDX);
             }
         });
     }
@@ -73,17 +90,13 @@ public class ArtistsFragment extends BaseFragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.clear();
 
-        if (this.isVisible()){
-            getActivity().getMenuInflater().inflate(R.menu.music_toolbar_menu, menu);
-            MenuItem searchItem = menu.findItem(R.id.search_field);
+        MenuItem searchItem = menu.findItem(R.id.search_field);
 
-            if (searchItem != null){
-                searchView = (SearchView) searchItem.getActionView();
-                searchView.setOnQueryTextListener(this);
-                searchView.setOnCloseListener(this);
-            }
+        if (searchItem != null) {
+            searchView = (SearchView) searchItem.getActionView();
+            searchView.setOnQueryTextListener(this);
+            searchView.setOnCloseListener(this);
         }
     }
 
@@ -95,7 +108,7 @@ public class ArtistsFragment extends BaseFragment
         progressBarMain = view.findViewById(R.id.progress_artist);
         emptyLayout = view.findViewById(R.id.empty_layout_artists);
 
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL, false);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         artistsRecyclerView.setLayoutManager(linearLayoutManager);
         artistsRecyclerView.setAdapter(artistsAdapter);
 
@@ -104,16 +117,16 @@ public class ArtistsFragment extends BaseFragment
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if (dy > 0){
-                    if(!isSearchingNow){
+                if (dy > 0) {
+                    if (!isSearchingNow) {
                         int totalItemCount = linearLayoutManager.getItemCount();
                         int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
 
-                        if (!isLoading){
+                        if (!isLoading) {
                             if ((totalItemCount - 1) == lastVisibleItem) {
                                 currentPageTopChartArtists++;
                                 isLoading = true;
-                                artistsPresenter.getTopChartArtists(currentPageTopChartArtists,Constants.TOP_ITEMS_LIMIT_CHART,Constants.API_KEY);
+                                artistsPresenter.getTopChartArtists(currentPageTopChartArtists, Constants.TOP_ITEMS_LIMIT_CHART, Constants.API_KEY);
                             }
                         }
                     }
@@ -127,7 +140,7 @@ public class ArtistsFragment extends BaseFragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        artistsPresenter.getTopChartArtists(Constants.DEFAULT_PAGE_CHART,Constants.TOP_ITEMS_LIMIT_CHART,Constants.API_KEY);
+        artistsPresenter.getTopChartArtists(Constants.DEFAULT_PAGE_CHART, Constants.TOP_ITEMS_LIMIT_CHART, Constants.API_KEY);
     }
 
     @Override
@@ -148,7 +161,7 @@ public class ArtistsFragment extends BaseFragment
 
     @Override
     public void loadArtists(List<Artist> artistList) {
-        if (artistsAdapter != null){
+        if (artistsAdapter != null) {
             artistsAdapter.setArtistList(artistList);
             isLoading = false;
         }
@@ -156,7 +169,7 @@ public class ArtistsFragment extends BaseFragment
 
     @Override
     public void searchArtists(List<Artist> artistList) {
-        if (artistsAdapter != null){
+        if (artistsAdapter != null) {
             artistsAdapter.clearArtistList();
             artistsAdapter.setArtistList(artistList);
         }
@@ -164,7 +177,7 @@ public class ArtistsFragment extends BaseFragment
 
     @Override
     public void showError() {
-        Toast.makeText(getContext(),"Error",Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), getString(R.string.error_load), Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -190,13 +203,14 @@ public class ArtistsFragment extends BaseFragment
 
     @Override
     public boolean onClose() {
-        artistsPresenter.getTopChartArtists(Constants.DEFAULT_PAGE_CHART,Constants.TOP_ITEMS_LIMIT_CHART,Constants.API_KEY);
+        artistsAdapter.clearArtistList();
+        artistsPresenter.getTopChartArtists(Constants.DEFAULT_PAGE_CHART, Constants.TOP_ITEMS_LIMIT_CHART, Constants.API_KEY);
         isSearchingNow = false;
         return false;
     }
 
 
-    public interface OnFragmentInteractionListener{
-
+    public interface onFragmentInteractionListener {
+        void onFragmentInteraction(Bundle data);
     }
 }

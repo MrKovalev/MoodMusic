@@ -23,4 +23,19 @@ public class FavoriteAlbumsPresenter implements IFavoriteAlbumsPresenter {
     @Override
     public void searchAlbum(String nameAlbum) {
     }
+
+    @Override
+    public void addFavoriteAlbum(FavoriteAlbum favoriteAlbum) {
+        iFavoriteAlbumsView.addAlbum(favoriteAlbum);
+    }
+
+    @Override
+    public void editFavoriteAlbum(FavoriteAlbum favoriteAlbum) {
+        iFavoriteAlbumsView.editAlbum(favoriteAlbum);
+    }
+
+    @Override
+    public void deleteFavoriteAlbum(int position) {
+        iFavoriteAlbumsView.deleteAlbum(position);
+    }
 }
