@@ -1,30 +1,41 @@
-package com.titanium.moodmusic.data.model.favoriteAlbums;
+package com.titanium.moodmusic.data.db.entity;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverter;
+import android.arch.persistence.room.TypeConverters;
 
 import com.titanium.moodmusic.data.model.tracks.Track;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavoriteAlbum {
-    private int albumId;
+
+@Entity
+public class FavoriteAlbumTable {
+
+    @PrimaryKey
+    private int idAlbum;
     private String nameAlbum;
     private String countSongsInAlbum;
+
+    @TypeConverters(TrackTypeConverter.class)
     private List<Track> trackList = new ArrayList<>();
 
-    public FavoriteAlbum() { }
+    public FavoriteAlbumTable() { }
 
-    public FavoriteAlbum(int albumId, String nameAlbum, String countSongsInAlbum) {
-        this.albumId = albumId;
+    public FavoriteAlbumTable(int idAlbum, String nameAlbum, String countSongsInAlbum) {
+        this.idAlbum = idAlbum;
         this.nameAlbum = nameAlbum;
         this.countSongsInAlbum = countSongsInAlbum;
     }
 
-    public int getAlbumId() {
-        return albumId;
+    public int getIdAlbum() {
+        return idAlbum;
     }
 
-    public void setAlbumId(int albumId) {
-        this.albumId = albumId;
+    public void setIdAlbum(int idAlbum) {
+        this.idAlbum = idAlbum;
     }
 
     public String getNameAlbum() {
@@ -48,14 +59,6 @@ public class FavoriteAlbum {
     }
 
     public void setTrackList(List<Track> trackList) {
-        this.trackList.addAll(trackList);
-    }
-
-    public void addNewTrack(Track track){
-        this.trackList.add(track);
-    }
-
-    public void deleteOldTrack(Track track){
-        this.trackList.remove(track);
+        this.trackList = trackList;
     }
 }

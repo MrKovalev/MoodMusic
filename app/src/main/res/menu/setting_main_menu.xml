@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group
-        android:id="@+id/group_communicate"
-        android:checkableBehavior="single">
+        android:id="@+id/group_communicate">
         <item
             android:id="@+id/nav_share"
-            android:icon="@drawable/ic_launcher_background"
             android:title="Поделиться" />
         <item
             android:id="@+id/nav_rate"
-            android:icon="@drawable/ic_launcher_background"
-            android:title="Оценить приложение" />
+            android:title="Наши приложения" />
     </group>
 </menu>

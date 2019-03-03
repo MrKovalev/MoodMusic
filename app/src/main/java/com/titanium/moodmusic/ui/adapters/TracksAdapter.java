@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
     private List<Track> trackList = new ArrayList<>();
     private Context context;
     private ItemTrackClickListener trackItemClickListener;
+    private ItemTrackBtnAddClickListener trackBtnAddClickListener;
 
     public TracksAdapter(Context context) {
         this.context = context;
@@ -40,7 +42,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
     @Override
     public void onBindViewHolder(@NonNull TracksHolder tracksHolder, final int i) {
         final Track itemTrack = trackList.get(i);
-        tracksHolder.imgTrack.setImageResource(R.mipmap.play);
+        tracksHolder.imgTrack.setImageResource(R.drawable.ic_audiotrack_orange);
         tracksHolder.nameTrack.setText(itemTrack.getName());
 
         if (itemTrack.getArtist() instanceof String){
@@ -56,6 +58,13 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
             public void onClick(View v) {
                 if (trackItemClickListener != null)
                     trackItemClickListener.onItemClick(trackList, itemTrack, i);
+            }
+        });
+
+        tracksHolder.btnAddTrackToAlbum.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                trackBtnAddClickListener.onItemClick(itemTrack);
             }
         });
     }
@@ -102,21 +111,31 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
         this.trackItemClickListener = itemClickListener;
     }
 
-     static class TracksHolder extends RecyclerView.ViewHolder{
+    public void setTrackBtnAddClickListener(ItemTrackBtnAddClickListener trackBtnAddClickListener) {
+        this.trackBtnAddClickListener = trackBtnAddClickListener;
+    }
+
+    static class TracksHolder extends RecyclerView.ViewHolder{
 
         private ImageView imgTrack;
         private TextView nameTrack;
         private TextView nameArtist;
+        private ImageButton btnAddTrackToAlbum;
 
          TracksHolder(@NonNull View itemView) {
             super(itemView);
             imgTrack = itemView.findViewById(R.id.img_track);
             nameTrack = itemView.findViewById(R.id.name_track);
             nameArtist = itemView.findViewById(R.id.name_artist);
+            btnAddTrackToAlbum = itemView.findViewById(R.id.btn_add_track);
         }
     }
 
     public interface ItemTrackClickListener{
         void onItemClick(List<Track> trackList, Track track, int position);
+    }
+
+    public interface ItemTrackBtnAddClickListener{
+        void onItemClick(Track track);
     }
 }

@@ -63,7 +63,6 @@ public class TracksPresenter implements ITracksPresenter{
             }
         });
 
-        //iTracksView.loadTracks(ArtistsGenerator.getTracks());
     }
 
     @Override

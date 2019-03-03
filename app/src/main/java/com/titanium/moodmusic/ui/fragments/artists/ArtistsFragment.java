@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,13 +20,11 @@ import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.api.Constants;
 import com.titanium.moodmusic.data.api.retrofit.LastFmRetrofitClient;
 import com.titanium.moodmusic.data.model.artists.Artist;
-import com.titanium.moodmusic.ui.activities.MusicActivity;
 import com.titanium.moodmusic.ui.adapters.ArtistsAdapter;
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
 import com.titanium.moodmusic.ui.fragments.BaseFragment;
 import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ArtistsFragment extends BaseFragment
@@ -78,7 +75,7 @@ public class ArtistsFragment extends BaseFragment
                 Bundle bundle = new Bundle();
                 bundle.putString(TracksFragment.EXTRA_ARIST_NAME, artist.getName());
                 bundle.putBoolean(TracksFragment.EXTRA_CAN_SHOW_TRACKS_BY_ARTIST, true);
-                interactionListener.onFragmentInteraction(bundle);
+                interactionListener.onFragmentArtistInteraction(bundle);
 
                 ViewPager viewPager = getActivity().findViewById(R.id.vp_main);
                 if (viewPager != null)
@@ -211,6 +208,6 @@ public class ArtistsFragment extends BaseFragment
 
 
     public interface onFragmentInteractionListener {
-        void onFragmentInteraction(Bundle data);
+        void onFragmentArtistInteraction(Bundle data);
     }
 }

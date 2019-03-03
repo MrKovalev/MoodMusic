@@ -91,4 +91,15 @@ public class Track {
             return track;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Track{" +
+                "mbid='" + mbid + '\'' +
+                ", name='" + name + '\'' +
+                ", playCount='" + playCount + '\'' +
+                ", url='" + url + '\'' +
+                ", artist=" + artist +
+                '}';
+    }
 }

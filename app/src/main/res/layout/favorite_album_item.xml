@@ -17,6 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textColor="@color/colorArtistText"
             android:paddingLeft="5dp"
             android:textSize="28sp"
             android:text="1."/>
@@ -33,6 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
+                android:textColor="@color/colorArtistText"
                 android:textSize="28sp"
                 android:text="Название альбома"/>
 
@@ -40,6 +42,7 @@
                 android:id="@+id/count_tracks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/colorArtistText"
                 android:paddingBottom="5dp"
                 android:text="Количество песен: 1"/>
         </LinearLayout>
@@ -48,7 +51,7 @@
             android:id="@+id/album_menu"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:background="@mipmap/add"
+            android:background="@drawable/ic_more_vert"
             android:layout_weight="1"/>
     </LinearLayout>
 

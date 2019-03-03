@@ -17,8 +17,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.titanium.moodmusic.R;
+import com.titanium.moodmusic.data.db.AsyncDataLoader;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
+import com.titanium.moodmusic.data.model.tracks.Track;
+import com.titanium.moodmusic.ui.MusicAppication;
 import com.titanium.moodmusic.ui.adapters.FavoriteAlbumsAdapter;
 import com.titanium.moodmusic.ui.fragments.BaseFragment;
 import com.titanium.moodmusic.ui.fragments.artists.ArtistsFragment;
@@ -26,6 +32,8 @@ import com.titanium.moodmusic.ui.fragments.favoriteAlbumTracks.FavoriteAlbumTrac
 import com.titanium.moodmusic.ui.fragments.trackDetailWeb.WebFragment;
 import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FavoriteAlbumsFragment extends BaseFragment
@@ -45,11 +53,14 @@ public class FavoriteAlbumsFragment extends BaseFragment
         return new FavoriteAlbumsFragment();
     }
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        favoriteAlbumsPresenter = new FavoriteAlbumsPresenter(this, new FavoriteAlbumsInteractor());
+
+        AsyncDataLoader asyncDataLoader = new AsyncDataLoader();
+        asyncDataLoader.setMusicDao(MusicAppication.getInstance().getMusicDatabase().musicDao());
+        favoriteAlbumsPresenter = new FavoriteAlbumsPresenter(this,
+                new FavoriteAlbumsInteractor(MusicAppication.getInstance().getMusicDatabase().musicDao()), asyncDataLoader);
         favoriteAlbumsAdapter = new FavoriteAlbumsAdapter(getContext());
 
         favoriteAlbumsAdapter.setAlbumBtnClickListener(new FavoriteAlbumsAdapter.ItemAlbumBtnClickListener() {
@@ -62,16 +73,12 @@ public class FavoriteAlbumsFragment extends BaseFragment
         favoriteAlbumsAdapter.setItemAlbumClickListener(new FavoriteAlbumsAdapter.ItemClickListener() {
             @Override
             public void onItemAlbumClick(FavoriteAlbum favoriteAlbum) {
-                Log.d("TAG","CHANGE FRAGMENT");
-                Fragment fragmentTracksAlbum = FavoriteAlbumTracksFragment.newInstance();
-
-                Log.d("TAG","Fragment = "+ fragmentTracksAlbum);
+                Fragment fragmentTracksAlbum = FavoriteAlbumTracksFragment
+                        .newInstance(setTrackList(favoriteAlbum.getTrackList()), favoriteAlbum.getNameAlbum());
 
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                Log.d("TAG","transaction = "+ transaction);
-
                 transaction.addToBackStack(null);
-                transaction.replace(R.id.container_album, new FavoriteAlbumTracksFragment());
+                transaction.replace(R.id.container_album, fragmentTracksAlbum);
                 transaction.commit();
             }
         });
@@ -108,6 +115,12 @@ public class FavoriteAlbumsFragment extends BaseFragment
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        favoriteAlbumsPresenter.saveAlbumsToDatabase(favoriteAlbumsAdapter.getAllAlbums());
+    }
+
+    @Override
     protected void search(String query) {
 
     }
@@ -124,6 +137,17 @@ public class FavoriteAlbumsFragment extends BaseFragment
 
     @Override
     public void loadAlbums(List<FavoriteAlbum> albumList) {
+
+//        for (FavoriteAlbum favoriteAlbum : albumList){
+//            List<Track> trackList = new ArrayList<>();
+//            Track t = new Track();
+//            t.setName("TEST");
+//            t.setArtist("DDDD");
+//            trackList.add(t);
+//
+//            favoriteAlbum.setTrackList(trackList);
+//        }
+
         favoriteAlbumsAdapter.setFavoriteAlbumList(albumList);
     }
 
@@ -162,6 +186,21 @@ public class FavoriteAlbumsFragment extends BaseFragment
 
     }
 
+    public List<FavoriteAlbum> getAllAlbums(){
+        return favoriteAlbumsAdapter.getAllAlbums();
+    }
+
+    public void addTrackToAlbum(Track track, int positionAlbum){
+        Log.d("TAG", "fr - "+track.toString());
+        Log.d("TAG","frag - "+track.getArtist());
+        favoriteAlbumsAdapter.addTrackToAlbum(track,positionAlbum);
+    }
+
+    public void deleteTrackFromAlbum(Track track){
+        Log.d("TAG","delete track");
+        favoriteAlbumsAdapter.deleteTrackFromAlbum(track);
+    }
+
     private void prepareAlertDialogAddEditAlbum(final FavoriteAlbum favoriteAlbum, final boolean isEdit){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(getString(R.string.enter_name_add_album));
@@ -174,13 +213,13 @@ public class FavoriteAlbumsFragment extends BaseFragment
                 input.setText(favoriteAlbum.getNameAlbum());
         }
 
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (!isEdit) {
                     favoriteAlbumsPresenter.addFavoriteAlbum(
                             new FavoriteAlbum(favoriteAlbumsAdapter.getLastAlbumId()
-                                    ,input.getText().toString(),"0 треков"));
+                                    ,input.getText().toString(),"треков:0"));
                 } else {
                     favoriteAlbum.setNameAlbum(input.getText().toString());
                     favoriteAlbumsPresenter.editFavoriteAlbum(favoriteAlbum);
@@ -188,7 +227,7 @@ public class FavoriteAlbumsFragment extends BaseFragment
             }
         });
 
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton("Отменить", null);
         builder.show();
     }
 
@@ -213,7 +252,14 @@ public class FavoriteAlbumsFragment extends BaseFragment
             }
         });
 
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton("Отменить", null);
         builder.show();
+    }
+
+    private String setTrackList(List<Track> tracks){
+        Gson gson = new GsonBuilder().create();
+        Type trackType = new TypeToken<List<Track>>(){}.getType();
+
+        return gson.toJson(tracks, trackType);
     }
 }

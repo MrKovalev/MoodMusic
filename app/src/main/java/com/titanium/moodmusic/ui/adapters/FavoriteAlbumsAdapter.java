@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
+import com.titanium.moodmusic.data.model.tracks.Track;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,6 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
     public FavoriteAlbumsAdapter(Context context) {
         this.context = context;
     }
-
 
     @NonNull
     @Override
@@ -43,12 +43,11 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         final FavoriteAlbum itemAlbum = favoriteAlbumList.get(i);
         albumsHolder.numAlbum.setText(String.valueOf(itemAlbum.getAlbumId() + "."));
         albumsHolder.nameAlbum.setText(itemAlbum.getNameAlbum());
-        albumsHolder.countTracks.setText(itemAlbum.getCountSongsInAlbum());
+        albumsHolder.countTracks.setText("треков:"+itemAlbum.getTrackList().size());
 
         albumsHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("TAG","adapter set listener");
                 itemAlbumClickListener.onItemAlbumClick(itemAlbum);
             }
         });
@@ -67,6 +66,36 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         }
 
         return 0;
+    }
+
+    public List<FavoriteAlbum> getAllAlbums(){
+        return this.favoriteAlbumList;
+    }
+
+    public void addTrackToAlbum(Track newTrack, int positionAlbum){
+        Log.d("TAG", "ad1 - "+newTrack.toString());
+        Log.d("TAG","adap - "+newTrack.getArtist());
+        FavoriteAlbum whichAlbumAdd = favoriteAlbumList.get(positionAlbum);
+        whichAlbumAdd.addNewTrack(newTrack);
+    }
+
+    public void deleteTrackFromAlbum(Track oldTrack){
+        int indexAlbum = 0;
+
+        for (FavoriteAlbum favoriteAlbum : favoriteAlbumList){
+            Log.d("TAG","favoriteAlbum - "+favoriteAlbum.getNameAlbum());
+
+            if (favoriteAlbum.getTrackList().contains(oldTrack)){
+                Log.d("TAG","favoriteAlbum - трек тут");
+                indexAlbum = favoriteAlbum.getTrackList().indexOf(oldTrack);
+            }
+        }
+
+        Log.d("TAG","indexAlbum - "+indexAlbum);
+
+        FavoriteAlbum whichAlbumDelete= favoriteAlbumList.get(indexAlbum);
+        whichAlbumDelete.deleteOldTrack(oldTrack);
+        notifyDataSetChanged();
     }
 
     public void setFavoriteAlbumList(List<FavoriteAlbum> favoriteAlbums) {
@@ -90,9 +119,8 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         notifyItemRemoved(position);
     }
 
-
     public int getLastAlbumId() {
-        return this.favoriteAlbumList.size();
+        return this.favoriteAlbumList.size() + 1;
     }
 
     public void setAlbumBtnClickListener(ItemAlbumBtnClickListener albumClickListener) {

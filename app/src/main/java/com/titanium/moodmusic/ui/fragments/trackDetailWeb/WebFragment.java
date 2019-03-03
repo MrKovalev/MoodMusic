@@ -44,9 +44,10 @@ public class WebFragment extends Fragment {
         webView = view.findViewById(R.id.wv_track);
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient());
-        webView.setLayerType(View.LAYER_TYPE_HARDWARE,null);
+        webView.setLayerType(View.LAYER_TYPE_SOFTWARE,null);
         webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
         webView.loadUrl(getArguments().getString(EXTRA_URL_TRACK));
         return view;
