@@ -1,5 +1,7 @@
 package com.titanium.moodmusic.data.model.favoriteAlbums;
 
+import android.util.Log;
+
 import com.titanium.moodmusic.data.model.tracks.Track;
 
 import java.util.ArrayList;
@@ -55,7 +57,7 @@ public class FavoriteAlbum {
         this.trackList.add(track);
     }
 
-    public void deleteOldTrack(Track track){
-        this.trackList.remove(track);
+    public void deleteOldTrack(Track track, int positionTrackInAlbum){
+        this.trackList.remove(positionTrackInAlbum);
     }
 }

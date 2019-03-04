@@ -49,7 +49,6 @@
         <ImageButton
             android:id="@+id/btn_add_track"
             android:layout_weight="1"
-            android:background="@drawable/ic_playlist_add_orange"
             android:layout_gravity="center"
             android:layout_width="60dp"
             android:layout_height="60dp" />

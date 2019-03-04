@@ -116,24 +116,16 @@ public class MusicActivity extends AppCompatActivity
         FavoriteAlbumsFragment favoriteAlbumsFragment = (FavoriteAlbumsFragment)
                 (mainPagerAdapter.getCreatedFragment(MainPagerAdapter.FAVORITE_ALBUMS_IDX).get());
 
-        Log.d("TAG", track.toString());
-        Log.d("TAG","activity - "+track.getArtist());
-
-        //Artist artist = (Artist)(track.getArtist());
-        //Log.d("TAG", artist.getName());
-
         if (favoriteAlbumsFragment != null)
             favoriteAlbumsFragment.addTrackToAlbum(track, positionAlbum);
     }
 
     @Override
-    public void onFragmentTrackDeleteFromAlbumInteraction(Track track) {
+    public void onFragmentTrackDeleteFromAlbumInteraction(Track track, int positionTrackInAlbum) {
         FavoriteAlbumsFragment favoriteAlbumsFragment = (FavoriteAlbumsFragment)
                 (mainPagerAdapter.getCreatedFragment(MainPagerAdapter.FAVORITE_ALBUMS_IDX).get());
 
-        Log.d("TAG","track - "+track.getName());
-
         if (favoriteAlbumsFragment != null)
-            favoriteAlbumsFragment.deleteTrackFromAlbum(track);
+            favoriteAlbumsFragment.deleteTrackFromAlbum(track, positionTrackInAlbum);
     }
 }

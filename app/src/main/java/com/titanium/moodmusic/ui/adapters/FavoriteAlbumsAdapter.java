@@ -43,7 +43,7 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         final FavoriteAlbum itemAlbum = favoriteAlbumList.get(i);
         albumsHolder.numAlbum.setText(String.valueOf(itemAlbum.getAlbumId() + "."));
         albumsHolder.nameAlbum.setText(itemAlbum.getNameAlbum());
-        albumsHolder.countTracks.setText("треков:"+itemAlbum.getTrackList().size());
+        albumsHolder.countTracks.setText("треков:" + itemAlbum.getTrackList().size());
 
         albumsHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,10 +51,12 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
                 itemAlbumClickListener.onItemAlbumClick(itemAlbum);
             }
         });
+
+        albumsHolder.btnAlbumSettings.setImageResource(R.drawable.ic_more_vert);
         albumsHolder.btnAlbumSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               albumClickListener.onItemBtnClick(itemAlbum,albumsHolder.getAdapterPosition());
+                albumClickListener.onItemBtnClick(itemAlbum, albumsHolder.getAdapterPosition());
             }
         });
     }
@@ -68,33 +70,37 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         return 0;
     }
 
-    public List<FavoriteAlbum> getAllAlbums(){
+    public List<FavoriteAlbum> getAllAlbums() {
         return this.favoriteAlbumList;
     }
 
-    public void addTrackToAlbum(Track newTrack, int positionAlbum){
-        Log.d("TAG", "ad1 - "+newTrack.toString());
-        Log.d("TAG","adap - "+newTrack.getArtist());
+    public void addTrackToAlbum(Track newTrack, int positionAlbum) {
         FavoriteAlbum whichAlbumAdd = favoriteAlbumList.get(positionAlbum);
         whichAlbumAdd.addNewTrack(newTrack);
+        notifyDataSetChanged();
     }
 
-    public void deleteTrackFromAlbum(Track oldTrack){
+    public void deleteTrackFromAlbum(Track oldTrack, int positionTrackInAlbum) {
         int indexAlbum = 0;
+        boolean isFounded = false;
 
-        for (FavoriteAlbum favoriteAlbum : favoriteAlbumList){
-            Log.d("TAG","favoriteAlbum - "+favoriteAlbum.getNameAlbum());
+        for (int k = 0; k < favoriteAlbumList.size(); k++) {
+            List<Track> trackList = favoriteAlbumList.get(k).getTrackList();
+            for (int i = 0; i < trackList.size(); i++) {
+                if (trackList.get(i).getName().equalsIgnoreCase(oldTrack.getName())) {
+                    isFounded = true;
+                    break;
+                }
+            }
 
-            if (favoriteAlbum.getTrackList().contains(oldTrack)){
-                Log.d("TAG","favoriteAlbum - трек тут");
-                indexAlbum = favoriteAlbum.getTrackList().indexOf(oldTrack);
+            if (isFounded) {
+                indexAlbum = k;
+                break;
             }
         }
 
-        Log.d("TAG","indexAlbum - "+indexAlbum);
-
-        FavoriteAlbum whichAlbumDelete= favoriteAlbumList.get(indexAlbum);
-        whichAlbumDelete.deleteOldTrack(oldTrack);
+        FavoriteAlbum whichAlbumDelete = favoriteAlbumList.get(indexAlbum);
+        whichAlbumDelete.deleteOldTrack(oldTrack, positionTrackInAlbum);
         notifyDataSetChanged();
     }
 
@@ -109,12 +115,12 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
     }
 
 
-    public void editFavoriteAlbum(FavoriteAlbum favoriteAlbum){
+    public void editFavoriteAlbum(FavoriteAlbum favoriteAlbum) {
         int pos = favoriteAlbumList.lastIndexOf(favoriteAlbum);
         notifyItemChanged(pos);
     }
 
-    public void deleteFavoriteAlbum(int position){
+    public void deleteFavoriteAlbum(int position) {
         this.favoriteAlbumList.remove(position);
         notifyItemRemoved(position);
     }
@@ -131,7 +137,7 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         this.itemAlbumClickListener = itemAlbumClickListener;
     }
 
-    public interface ItemClickListener{
+    public interface ItemClickListener {
         void onItemAlbumClick(FavoriteAlbum favoriteAlbum);
     }
 

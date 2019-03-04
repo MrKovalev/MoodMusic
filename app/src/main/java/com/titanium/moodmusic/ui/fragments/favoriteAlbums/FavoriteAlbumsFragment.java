@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.db.AsyncDataLoader;
+import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.ui.MusicAppication;
@@ -73,6 +74,11 @@ public class FavoriteAlbumsFragment extends BaseFragment
         favoriteAlbumsAdapter.setItemAlbumClickListener(new FavoriteAlbumsAdapter.ItemClickListener() {
             @Override
             public void onItemAlbumClick(FavoriteAlbum favoriteAlbum) {
+
+                for (Track track : favoriteAlbum.getTrackList()){
+                    Log.d("TAG", "Перебираем треки в альюбоме - "+ track.getName());
+                }
+
                 Fragment fragmentTracksAlbum = FavoriteAlbumTracksFragment
                         .newInstance(setTrackList(favoriteAlbum.getTrackList()), favoriteAlbum.getNameAlbum());
 
@@ -137,17 +143,6 @@ public class FavoriteAlbumsFragment extends BaseFragment
 
     @Override
     public void loadAlbums(List<FavoriteAlbum> albumList) {
-
-//        for (FavoriteAlbum favoriteAlbum : albumList){
-//            List<Track> trackList = new ArrayList<>();
-//            Track t = new Track();
-//            t.setName("TEST");
-//            t.setArtist("DDDD");
-//            trackList.add(t);
-//
-//            favoriteAlbum.setTrackList(trackList);
-//        }
-
         favoriteAlbumsAdapter.setFavoriteAlbumList(albumList);
     }
 
@@ -191,14 +186,12 @@ public class FavoriteAlbumsFragment extends BaseFragment
     }
 
     public void addTrackToAlbum(Track track, int positionAlbum){
-        Log.d("TAG", "fr - "+track.toString());
-        Log.d("TAG","frag - "+track.getArtist());
         favoriteAlbumsAdapter.addTrackToAlbum(track,positionAlbum);
     }
 
-    public void deleteTrackFromAlbum(Track track){
+    public void deleteTrackFromAlbum(Track track, int positionTrackInAlbum){
         Log.d("TAG","delete track");
-        favoriteAlbumsAdapter.deleteTrackFromAlbum(track);
+        favoriteAlbumsAdapter.deleteTrackFromAlbum(track, positionTrackInAlbum);
     }
 
     private void prepareAlertDialogAddEditAlbum(final FavoriteAlbum favoriteAlbum, final boolean isEdit){
@@ -257,9 +250,20 @@ public class FavoriteAlbumsFragment extends BaseFragment
     }
 
     private String setTrackList(List<Track> tracks){
+        //проставляем всем трекам артиста в виде строки, сделано из-за проблем
+        // при разном ответе с сервера и последующим toJson
+        for (Track track : tracks){
+            if (track.getArtist() instanceof String){
+                String artistName = (String) track.getArtist();
+                track.setArtist(artistName);
+            } else {
+                Artist artist = (Artist) track.getArtist();
+                track.setArtist(artist.getName());
+            }
+        }
+
         Gson gson = new GsonBuilder().create();
         Type trackType = new TypeToken<List<Track>>(){}.getType();
-
-        return gson.toJson(tracks, trackType);
+        return gson.toJson(tracks);
     }
 }

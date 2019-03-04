@@ -8,9 +8,6 @@
     <string name="open_drawer">Открыть</string>
     <string name="close_drawer">Закрыть</string>
     <string name="error_load">Ошибка загрузки</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="enter_name_add_album">Введите название альбома</string>
     <string name="add_btn_text">Добавить альбом</string>
     <string name="choose_album_act">Выберите необходимое действие:</string>

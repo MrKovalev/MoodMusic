@@ -132,7 +132,7 @@ public class FavoriteAlbumTracksFragment extends BaseFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 onFragmentTrackDeleteFromAlbumInteractionListener
-                        .onFragmentTrackDeleteFromAlbumInteraction(track);
+                        .onFragmentTrackDeleteFromAlbumInteraction(track, positionAlbum);
 
                 favoriteAlbumTracksAdapter.deleteTrackFromAlbum(track);
                 Toast.makeText(getContext(),"Трек успешно удалён",Toast.LENGTH_SHORT).show();
@@ -148,6 +148,6 @@ public class FavoriteAlbumTracksFragment extends BaseFragment {
     }
 
     public interface onFragmentTrackDeleteFromAlbumInteractionListener {
-        void onFragmentTrackDeleteFromAlbumInteraction(Track track);
+        void onFragmentTrackDeleteFromAlbumInteraction(Track track, int positionTrackInAlbum);
     }
 }

@@ -61,6 +61,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
             }
         });
 
+        tracksHolder.btnAddTrackToAlbum.setImageResource(R.drawable.ic_playlist_add_orange);
         tracksHolder.btnAddTrackToAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

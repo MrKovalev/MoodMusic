@@ -38,22 +38,23 @@ public class FavoriteAlbumTracksAdapter extends RecyclerView.Adapter<FavoriteAlb
         albumDetailHolder.imgTrack.setImageResource(R.drawable.ic_audiotrack_orange);
         albumDetailHolder.nameTrack.setText(itemTrack.getName());
 
-        Log.d("TAG","CAST TO - "+itemTrack.getArtist());
+        //Log.d("TAG","CAST TO - "+itemTrack.getArtist());
 
-        if (itemTrack.getArtist() instanceof String){
-            Log.d("TAG","CAST TO STRING");
+        /*if (itemTrack.getArtist() instanceof String){
             String artistName = (String) itemTrack.getArtist();
             albumDetailHolder.nameArtist.setText(artistName);
         } else {
-            Log.d("TAG","CAST TO ARTIST");
             Artist artist = (Artist) itemTrack.getArtist();
             albumDetailHolder.nameArtist.setText(artist.getName());
-        }
+        } */
+
+        String artistName = (String) itemTrack.getArtist();
+        albumDetailHolder.nameArtist.setText(artistName);
 
         albumDetailHolder.btnDeleteTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                itemDeleteBtnClickListener.onItemBtnClick(itemTrack, 0);
+                itemDeleteBtnClickListener.onItemBtnClick(itemTrack, albumDetailHolder.getAdapterPosition());
             }
         });
     }
@@ -96,7 +97,6 @@ public class FavoriteAlbumTracksAdapter extends RecyclerView.Adapter<FavoriteAlb
             nameTrack = itemView.findViewById(R.id.name_track);
             nameArtist = itemView.findViewById(R.id.name_artist);
             btnDeleteTrack = itemView.findViewById(R.id.btn_add_track);
-            btnDeleteTrack.setImageResource(0);
             btnDeleteTrack.setImageResource(R.drawable.ic_more_vert);
         }
     }
