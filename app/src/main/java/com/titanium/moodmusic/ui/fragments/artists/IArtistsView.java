@@ -12,6 +12,4 @@ public interface IArtistsView {
     void searchArtists(List<Artist> artistList);
 
     void showError();
-    void showEmpty();
-    void hideEmpty();
 }

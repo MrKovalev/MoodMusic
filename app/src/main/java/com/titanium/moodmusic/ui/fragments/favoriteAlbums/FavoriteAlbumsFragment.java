@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,21 +20,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.titanium.moodmusic.R;
-import com.titanium.moodmusic.data.db.AsyncDataLoader;
 import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 import com.titanium.moodmusic.data.model.tracks.Track;
-import com.titanium.moodmusic.ui.MusicAppication;
 import com.titanium.moodmusic.ui.adapters.FavoriteAlbumsAdapter;
+import com.titanium.moodmusic.di.components.*;
+import com.titanium.moodmusic.di.modules.activity_level.FavoriteAlbumsAdapterModule;
+import com.titanium.moodmusic.di.modules.activity_level.FavoriteAlbumsPresenterModule;
+import com.titanium.moodmusic.di.modules.app_level.AppModule;
+import com.titanium.moodmusic.di.modules.app_level.RoomModule;
 import com.titanium.moodmusic.ui.fragments.BaseFragment;
-import com.titanium.moodmusic.ui.fragments.artists.ArtistsFragment;
 import com.titanium.moodmusic.ui.fragments.favoriteAlbumTracks.FavoriteAlbumTracksFragment;
-import com.titanium.moodmusic.ui.fragments.trackDetailWeb.WebFragment;
-import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class FavoriteAlbumsFragment extends BaseFragment
             implements IFavoriteAlbumsView{
@@ -45,8 +45,11 @@ public class FavoriteAlbumsFragment extends BaseFragment
     private View emptyLayout;
     private Button buttonAddAlbum;
 
-    private IFavoriteAlbumsPresenter favoriteAlbumsPresenter;
-    private FavoriteAlbumsAdapter favoriteAlbumsAdapter;
+    @Inject
+    IFavoriteAlbumsPresenter favoriteAlbumsPresenter;
+
+    @Inject
+    FavoriteAlbumsAdapter favoriteAlbumsAdapter;
 
     public FavoriteAlbumsFragment(){}
 
@@ -58,11 +61,13 @@ public class FavoriteAlbumsFragment extends BaseFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AsyncDataLoader asyncDataLoader = new AsyncDataLoader();
-        asyncDataLoader.setMusicDao(MusicAppication.getInstance().getMusicDatabase().musicDao());
-        favoriteAlbumsPresenter = new FavoriteAlbumsPresenter(this,
-                new FavoriteAlbumsInteractor(MusicAppication.getInstance().getMusicDatabase().musicDao()), asyncDataLoader);
-        favoriteAlbumsAdapter = new FavoriteAlbumsAdapter(getContext());
+        DaggerFavoriteAlbumsComponent.builder()
+                .favoriteAlbumsAdapterModule(new FavoriteAlbumsAdapterModule(getContext()))
+                .appModule(new AppModule(getActivity().getApplication()))
+                .favoriteAlbumsPresenterModule(new FavoriteAlbumsPresenterModule(this))
+                .roomModule(new RoomModule(getActivity().getApplication()))
+                .build()
+                .inject(this);
 
         favoriteAlbumsAdapter.setAlbumBtnClickListener(new FavoriteAlbumsAdapter.ItemAlbumBtnClickListener() {
             @Override
@@ -74,10 +79,6 @@ public class FavoriteAlbumsFragment extends BaseFragment
         favoriteAlbumsAdapter.setItemAlbumClickListener(new FavoriteAlbumsAdapter.ItemClickListener() {
             @Override
             public void onItemAlbumClick(FavoriteAlbum favoriteAlbum) {
-
-                for (Track track : favoriteAlbum.getTrackList()){
-                    Log.d("TAG", "Перебираем треки в альюбоме - "+ track.getName());
-                }
 
                 Fragment fragmentTracksAlbum = FavoriteAlbumTracksFragment
                         .newInstance(setTrackList(favoriteAlbum.getTrackList()), favoriteAlbum.getNameAlbum());
@@ -131,24 +132,10 @@ public class FavoriteAlbumsFragment extends BaseFragment
 
     }
 
-    @Override
-    public void showProgress() {
-
-    }
-
-    @Override
-    public void hideProgress() {
-
-    }
 
     @Override
     public void loadAlbums(List<FavoriteAlbum> albumList) {
         favoriteAlbumsAdapter.setFavoriteAlbumList(albumList);
-    }
-
-    @Override
-    public void searchAlbums(List<FavoriteAlbum> albumList) {
-
     }
 
     @Override
@@ -166,20 +153,6 @@ public class FavoriteAlbumsFragment extends BaseFragment
         favoriteAlbumsAdapter.deleteFavoriteAlbum(position);
     }
 
-    @Override
-    public void showError() {
-
-    }
-
-    @Override
-    public void showEmpty() {
-
-    }
-
-    @Override
-    public void hideEmpty() {
-
-    }
 
     public List<FavoriteAlbum> getAllAlbums(){
         return favoriteAlbumsAdapter.getAllAlbums();
@@ -190,7 +163,6 @@ public class FavoriteAlbumsFragment extends BaseFragment
     }
 
     public void deleteTrackFromAlbum(Track track, int positionTrackInAlbum){
-        Log.d("TAG","delete track");
         favoriteAlbumsAdapter.deleteTrackFromAlbum(track, positionTrackInAlbum);
     }
 

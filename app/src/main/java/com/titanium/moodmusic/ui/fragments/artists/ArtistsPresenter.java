@@ -24,14 +24,8 @@ public class ArtistsPresenter implements IArtistsPresenter {
     }
 
     @Override
-    public void onDestroy() {
-
-    }
-
-    @Override
     public void getTopChartArtists(int page, int limit, String apiKey) {
         iArtistsView.showProgress();
-        iArtistsView.hideEmpty();
 
         Call<TopChartArtistsResponce> listCall = iArtistsInteractor.getTopChartArtists(page, limit, apiKey);
         listCall.enqueue(new Callback<TopChartArtistsResponce>() {
@@ -68,9 +62,7 @@ public class ArtistsPresenter implements IArtistsPresenter {
     @Override
     public void searchArtist(int page, int limit, String name, String apiKey) {
         iArtistsView.showProgress();
-        iArtistsView.hideEmpty();
 
-        Log.d("TAG", name);
         Call<SearchArtistResponce> listCall = iArtistsInteractor.searchArtist(page, limit, name, apiKey);
         listCall.enqueue(new Callback<SearchArtistResponce>() {
             @Override
@@ -105,6 +97,8 @@ public class ArtistsPresenter implements IArtistsPresenter {
                 iArtistsView.hideProgress();
             }
         });
-        //iArtistsView.searchArtists(ArtistsGenerator.generateArtists());
     }
+
+    @Override
+    public void onDestroy() { }
 }

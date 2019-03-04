@@ -23,8 +23,6 @@ public class FavoriteAlbumsPresenter implements IFavoriteAlbumsPresenter {
 
     @Override
     public void getFavoriteAlbums() {
-        iFavoriteAlbumsView.showProgress();
-        Log.d("TAG","start getting");
 
         asyncDataLoader.setAsyncResponceResult(new AsyncDataLoader.AsyncResponceResult() {
             @Override
@@ -32,7 +30,6 @@ public class FavoriteAlbumsPresenter implements IFavoriteAlbumsPresenter {
                 Log.d("TAG","interface getResult");
                 Log.d("TAG","result = "+result.size());
                 iFavoriteAlbumsView.loadAlbums(castAlbumsFromDb(result));
-                iFavoriteAlbumsView.hideProgress();
             }
         });
 

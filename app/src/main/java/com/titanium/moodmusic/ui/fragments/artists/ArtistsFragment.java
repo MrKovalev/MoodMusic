@@ -18,17 +18,23 @@ import android.widget.Toast;
 
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.api.Constants;
-import com.titanium.moodmusic.data.api.retrofit.LastFmRetrofitClient;
 import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.ui.adapters.ArtistsAdapter;
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
 import com.titanium.moodmusic.ui.fragments.BaseFragment;
+import com.titanium.moodmusic.di.modules.activity_level.ArtistsAdapterModule;
+import com.titanium.moodmusic.di.modules.activity_level.ArtistsPresenterModule;
+import com.titanium.moodmusic.di.components.*;
 import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class ArtistsFragment extends BaseFragment
-        implements IArtistsView, SearchView.OnQueryTextListener, SearchView.OnCloseListener {
+        implements IArtistsView
+        , SearchView.OnQueryTextListener
+        , SearchView.OnCloseListener {
 
     private RecyclerView artistsRecyclerView;
     private SearchView searchView;
@@ -36,8 +42,10 @@ public class ArtistsFragment extends BaseFragment
     private onFragmentInteractionListener interactionListener;
     private View emptyLayout;
 
-    private IArtistsPresenter artistsPresenter;
-    private ArtistsAdapter artistsAdapter;
+    @Inject
+    IArtistsPresenter artistsPresenter;
+    @Inject
+    ArtistsAdapter artistsAdapter;
 
     private boolean isLoading, isSearchingNow;
     private int currentPageTopChartArtists = Constants.DEFAULT_PAGE_CHART;
@@ -49,7 +57,6 @@ public class ArtistsFragment extends BaseFragment
     public static ArtistsFragment newInstance() {
         return new ArtistsFragment();
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -66,12 +73,17 @@ public class ArtistsFragment extends BaseFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        artistsPresenter = new ArtistsPresenter(this, new ArtistsInteractor(LastFmRetrofitClient.getInstance().getLastFmApi()));
-        artistsAdapter = new ArtistsAdapter(getContext());
+
+        //инициализируем зависимости
+        DaggerArtistsComponent.builder()
+                .artistsAdapterModule(new ArtistsAdapterModule(getContext()))
+                .artistsPresenterModule(new ArtistsPresenterModule(this))
+                .build()
+                .inject(this);
+
         artistsAdapter.setArtistItemClickListener(new ArtistsAdapter.ItemArtistClickListener() {
             @Override
             public void onItemClick(Artist artist) {
-
                 Bundle bundle = new Bundle();
                 bundle.putString(TracksFragment.EXTRA_ARIST_NAME, artist.getName());
                 bundle.putBoolean(TracksFragment.EXTRA_CAN_SHOW_TRACKS_BY_ARTIST, true);
@@ -89,7 +101,6 @@ public class ArtistsFragment extends BaseFragment
         super.onPrepareOptionsMenu(menu);
 
         MenuItem searchItem = menu.findItem(R.id.search_field);
-
         if (searchItem != null) {
             searchView = (SearchView) searchItem.getActionView();
             searchView.setOnQueryTextListener(this);
@@ -141,6 +152,12 @@ public class ArtistsFragment extends BaseFragment
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        interactionListener = null;
+    }
+
+    @Override
     protected void search(String query) {
         isSearchingNow = true;
         artistsPresenter.searchArtist(Constants.DEFAULT_PAGE_SEARCH, Constants.TOP_ITEMS_LIMIT_SEARCH, query, Constants.API_KEY);
@@ -178,16 +195,6 @@ public class ArtistsFragment extends BaseFragment
     }
 
     @Override
-    public void showEmpty() {
-        emptyLayout.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideEmpty() {
-        emptyLayout.setVisibility(View.GONE);
-    }
-
-    @Override
     public boolean onQueryTextChange(String newText) {
         search(newText);
         return false;
@@ -206,7 +213,7 @@ public class ArtistsFragment extends BaseFragment
         return false;
     }
 
-
+    //интерфейс для взаимодействия между фрагментами
     public interface onFragmentInteractionListener {
         void onFragmentArtistInteraction(Bundle data);
     }

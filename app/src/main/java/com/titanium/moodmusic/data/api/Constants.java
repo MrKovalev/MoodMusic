@@ -8,10 +8,6 @@ public class Constants {
     public static final int DEFAULT_PAGE_CHART = 1;
     public static final int DEFAULT_PAGE_SEARCH = 1;
 
-    public static final class Params {
-
-    }
-
     public static final class Endpoint{
         public static final String TOP_CHART_ARTISTS_SEARCH = "?method=chart.gettopartists&format=json";
         public static final String SEARCH_ARTIST = "?method=artist.search&format=json";

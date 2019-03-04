@@ -15,6 +15,4 @@ public interface ITracksView {
     void openTrackDetail(List<Track> trackList, Track track, int position);
 
     void showError();
-    void showEmpty();
-    void hideEmpty();
 }

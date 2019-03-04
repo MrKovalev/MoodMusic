@@ -40,7 +40,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TracksHolder tracksHolder, final int i) {
+    public void onBindViewHolder(@NonNull final TracksHolder tracksHolder, int i) {
         final Track itemTrack = trackList.get(i);
         tracksHolder.imgTrack.setImageResource(R.drawable.ic_audiotrack_orange);
         tracksHolder.nameTrack.setText(itemTrack.getName());
@@ -57,7 +57,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
             @Override
             public void onClick(View v) {
                 if (trackItemClickListener != null)
-                    trackItemClickListener.onItemClick(trackList, itemTrack, i);
+                    trackItemClickListener.onItemClick(trackList, itemTrack, tracksHolder.getAdapterPosition());
             }
         });
 

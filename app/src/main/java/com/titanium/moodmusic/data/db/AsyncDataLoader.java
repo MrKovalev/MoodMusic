@@ -14,7 +14,9 @@ public class AsyncDataLoader extends AsyncTask<Void,Void, List<FavoriteAlbumTabl
 
     MusicDao musicDao;
 
-    public AsyncDataLoader() { }
+    public AsyncDataLoader(MusicDao musicDao) {
+        this.musicDao = musicDao;
+    }
 
     @Override
     protected List<FavoriteAlbumTable> doInBackground(Void... voids) {
@@ -28,10 +30,6 @@ public class AsyncDataLoader extends AsyncTask<Void,Void, List<FavoriteAlbumTabl
         if (favoriteAlbumTableList != null && asyncResponceResult != null){
             asyncResponceResult.onTaskComplete(favoriteAlbumTableList);
         }
-    }
-
-    public void setMusicDao(MusicDao musicDao) {
-        this.musicDao = musicDao;
     }
 
     public void setAsyncResponceResult(AsyncResponceResult asyncResponceResult) {

@@ -26,10 +26,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.api.Constants;
-import com.titanium.moodmusic.data.api.retrofit.LastFmRetrofitClient;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.ui.adapters.TracksAdapter;
+import com.titanium.moodmusic.di.components.*;
+import com.titanium.moodmusic.di.modules.activity_level.TracksAdapterModule;
+import com.titanium.moodmusic.di.modules.activity_level.TracksPresenterModule;
 import com.titanium.moodmusic.ui.fragments.BaseFragment;
 import com.titanium.moodmusic.ui.fragments.trackDetailWeb.WebFragment;
 
@@ -37,13 +39,15 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class TracksFragment extends BaseFragment
-        implements ITracksView, SearchView.OnQueryTextListener, SearchView.OnCloseListener {
+        implements ITracksView
+            ,SearchView.OnQueryTextListener
+            ,SearchView.OnCloseListener {
 
     public static final String EXTRA_CAN_SHOW_TRACKS_BY_ARTIST = "EXTRA_CAN_SHOW_TRACKS_BY_ARTIST";
     public static final String EXTRA_ARIST_NAME = "EXTRA_ARIST_NAME";
-    public static final String EXTRA_TRACK_POSITION = "EXTRA_TRACK_POSITION";
-    public static final String EXTRA_TRACKS = "EXTRA_TRACKS";
 
     private RecyclerView tracksRecyclerView;
     private ImageButton btnAddTrackToAlbum;
@@ -51,8 +55,10 @@ public class TracksFragment extends BaseFragment
     private ProgressBar progressBarMain;
     private View emptyLayout;
 
-    private ITracksPresenter tracksPresenter;
-    private TracksAdapter tracksAdapter;
+    @Inject
+    ITracksPresenter tracksPresenter;
+    @Inject
+    TracksAdapter tracksAdapter;
 
     private onFragmentTrackGetAlbumsInteractionListener onFragmentTrackInteractionListener;
     private onFragmentTrackAddToAlbumInteractionListener onFragmentTrackAddToAlbumInteractionListener;
@@ -63,8 +69,7 @@ public class TracksFragment extends BaseFragment
 
     private Bundle bundle;
 
-    public TracksFragment() {
-    }
+    public TracksFragment() { }
 
     public static TracksFragment newInstance() {
         return new TracksFragment();
@@ -112,8 +117,12 @@ public class TracksFragment extends BaseFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        tracksPresenter = new TracksPresenter(this, new TracksInteractor(LastFmRetrofitClient.getInstance().getLastFmApi()));
-        tracksAdapter = new TracksAdapter(getContext());
+
+        DaggerTracksComponent.builder()
+                .tracksAdapterModule(new TracksAdapterModule(getContext()))
+                .tracksPresenterModule(new TracksPresenterModule(this))
+                .build()
+                .inject(this);
 
         tracksAdapter.setTrackItemClickListener(new TracksAdapter.ItemTrackClickListener() {
             @Override
@@ -186,6 +195,17 @@ public class TracksFragment extends BaseFragment
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        onFragmentTrackInteractionListener = null;
+        onFragmentTrackAddToAlbumInteractionListener = null;
+    }
+
+
+
+
+
+    @Override
     protected void search(String query) {
         isSearchingNow = true;
         getFragmentManager().popBackStack();
@@ -241,16 +261,6 @@ public class TracksFragment extends BaseFragment
     @Override
     public void showError() {
         Toast.makeText(getContext(), getString(R.string.error_load), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void showEmpty() {
-        emptyLayout.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideEmpty() {
-        emptyLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -326,6 +336,7 @@ public class TracksFragment extends BaseFragment
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
+
 
     public interface onFragmentTrackGetAlbumsInteractionListener {
         List<FavoriteAlbum> onFragmentTrackGetAlbumsInteraction();

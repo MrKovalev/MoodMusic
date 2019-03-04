@@ -5,7 +5,6 @@ import android.util.Log;
 import com.titanium.moodmusic.data.db.dao.MusicDao;
 import com.titanium.moodmusic.data.db.entity.FavoriteAlbumTable;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
-import com.titanium.moodmusic.ui.fragments.artists.ArtistsGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

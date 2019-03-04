@@ -1,12 +1,9 @@
 package com.titanium.moodmusic.ui.fragments.tracks;
 
-import android.util.Log;
-
 import com.titanium.moodmusic.data.model.responces.TracksByArtistResponce;
 import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.data.model.responces.SearchTrackResponce;
 import com.titanium.moodmusic.data.model.responces.TopChartTracksResponce;
-import com.titanium.moodmusic.ui.fragments.artists.ArtistsGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
