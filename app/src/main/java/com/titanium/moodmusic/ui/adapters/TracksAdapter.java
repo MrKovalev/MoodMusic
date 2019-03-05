@@ -18,6 +18,10 @@ import com.titanium.moodmusic.data.model.artists.Artist;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHolder> {
 
     private List<Track> trackList = new ArrayList<>();
@@ -45,62 +49,54 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
         tracksHolder.imgTrack.setImageResource(R.drawable.ic_audiotrack_orange);
         tracksHolder.nameTrack.setText(itemTrack.getName());
 
-        if (itemTrack.getArtist() instanceof String){
+        if (itemTrack.getArtist() instanceof String) {
             String artistName = (String) itemTrack.getArtist();
             tracksHolder.nameArtist.setText(artistName);
         } else {
             Artist artist = (Artist) itemTrack.getArtist();
             tracksHolder.nameArtist.setText(artist.getName());
         }
-
-        tracksHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (trackItemClickListener != null)
-                    trackItemClickListener.onItemClick(trackList, itemTrack, tracksHolder.getAdapterPosition());
-            }
-        });
-
-        tracksHolder.btnAddTrackToAlbum.setImageResource(R.drawable.ic_playlist_add_orange);
-        tracksHolder.btnAddTrackToAlbum.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                trackBtnAddClickListener.onItemClick(itemTrack);
-            }
-        });
     }
 
     @Override
     public int getItemCount() {
-        if (trackList != null){
+        if (trackList != null) {
             return trackList.size();
         }
 
         return 0;
     }
 
-    public void setTrackList(List<Track> trackList){
-        for(Track track : trackList){
-            if(checkUniqueTrack(track))
+    public void setTrackList(List<Track> trackList) {
+        for (Track track : trackList) {
+            if (checkUniqueTrack(track))
                 this.trackList.add(track);
         }
         notifyDataSetChanged();
     }
 
-    public void setTrack(Track track){
-        this.trackList.add(track);
-        notifyItemChanged(getItemCount() - 1);
+    public List<Track> getTrackList() {
+        return this.trackList;
     }
 
-    public void clearTracktList(){
-        if (trackList != null){
+    public void setTrack(Track track) {
+        this.trackList.add(track);
+        notifyItemInserted(getItemCount() + 1);
+    }
+
+    public Track getTrackByPosition(int position) {
+        return trackList.get(position);
+    }
+
+    public void clearTracktList() {
+        if (trackList != null) {
             trackList.clear();
             notifyDataSetChanged();
         }
     }
 
-    private boolean checkUniqueTrack(Track track){
-        for (Track trackForAnalyse : this.trackList){
+    private boolean checkUniqueTrack(Track track) {
+        for (Track trackForAnalyse : this.trackList) {
             if (trackForAnalyse.getName().equalsIgnoreCase(track.getName()))
                 return false;
         }
@@ -108,7 +104,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
         return true;
     }
 
-    public void setTrackItemClickListener(ItemTrackClickListener itemClickListener){
+    public void setTrackItemClickListener(ItemTrackClickListener itemClickListener) {
         this.trackItemClickListener = itemClickListener;
     }
 
@@ -116,27 +112,40 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHold
         this.trackBtnAddClickListener = trackBtnAddClickListener;
     }
 
-    static class TracksHolder extends RecyclerView.ViewHolder{
+    class TracksHolder extends RecyclerView.ViewHolder {
 
-        private ImageView imgTrack;
-        private TextView nameTrack;
-        private TextView nameArtist;
-        private ImageButton btnAddTrackToAlbum;
+        @BindView(R.id.img_track)
+        ImageView imgTrack;
+        @BindView(R.id.name_track)
+        TextView nameTrack;
+        @BindView(R.id.name_artist)
+        TextView nameArtist;
+        @BindView(R.id.btn_add_track)
+        ImageButton btnAddTrackToAlbum;
 
-         TracksHolder(@NonNull View itemView) {
+        TracksHolder(@NonNull View itemView) {
             super(itemView);
-            imgTrack = itemView.findViewById(R.id.img_track);
-            nameTrack = itemView.findViewById(R.id.name_track);
-            nameArtist = itemView.findViewById(R.id.name_artist);
-            btnAddTrackToAlbum = itemView.findViewById(R.id.btn_add_track);
+            ButterKnife.bind(this, itemView);
+            btnAddTrackToAlbum.setImageResource(R.drawable.ic_playlist_add_orange);
+        }
+
+        @OnClick(R.id.cv_tracks)
+        void onItemClicked() {
+            if (trackItemClickListener != null)
+                trackItemClickListener.onItemClick(getTrackList(), getTrackByPosition(getAdapterPosition()), getAdapterPosition());
+        }
+
+        @OnClick(R.id.btn_add_track)
+        void onItemBtnClick() {
+            trackBtnAddClickListener.onItemClick(getTrackByPosition(getAdapterPosition()));
         }
     }
 
-    public interface ItemTrackClickListener{
+    public interface ItemTrackClickListener {
         void onItemClick(List<Track> trackList, Track track, int position);
     }
 
-    public interface ItemTrackBtnAddClickListener{
+    public interface ItemTrackBtnAddClickListener {
         void onItemClick(Track track);
     }
 }

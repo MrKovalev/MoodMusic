@@ -17,6 +17,10 @@ import com.titanium.moodmusic.data.model.tracks.Track;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class FavoriteAlbumTracksAdapter extends RecyclerView.Adapter<FavoriteAlbumTracksAdapter.AlbumDetailHolder> {
 
     private ItemDeleteBtnClickListener itemDeleteBtnClickListener;
@@ -38,25 +42,8 @@ public class FavoriteAlbumTracksAdapter extends RecyclerView.Adapter<FavoriteAlb
         albumDetailHolder.imgTrack.setImageResource(R.drawable.ic_audiotrack_orange);
         albumDetailHolder.nameTrack.setText(itemTrack.getName());
 
-        //Log.d("TAG","CAST TO - "+itemTrack.getArtist());
-
-        /*if (itemTrack.getArtist() instanceof String){
-            String artistName = (String) itemTrack.getArtist();
-            albumDetailHolder.nameArtist.setText(artistName);
-        } else {
-            Artist artist = (Artist) itemTrack.getArtist();
-            albumDetailHolder.nameArtist.setText(artist.getName());
-        } */
-
         String artistName = (String) itemTrack.getArtist();
         albumDetailHolder.nameArtist.setText(artistName);
-
-        albumDetailHolder.btnDeleteTrack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                itemDeleteBtnClickListener.onItemBtnClick(itemTrack, albumDetailHolder.getAdapterPosition());
-            }
-        });
     }
 
     @Override
@@ -65,9 +52,7 @@ public class FavoriteAlbumTracksAdapter extends RecyclerView.Adapter<FavoriteAlb
     }
 
     public void setTrackList(List<Track> trackList){
-        for(Track track : trackList){
-                this.trackList.add(track);
-        }
+        this.trackList.addAll(trackList);
         notifyDataSetChanged();
     }
 
@@ -78,26 +63,37 @@ public class FavoriteAlbumTracksAdapter extends RecyclerView.Adapter<FavoriteAlb
 
     public void setTrack(Track track){
         this.trackList.add(track);
-        notifyItemChanged(getItemCount() - 1);
+        notifyItemInserted(getItemCount() + 1);
+    }
+
+    public Track getTrackByPosition(int position) {
+        return trackList.get(position);
     }
 
     public void setItemDeleteBtnClickListener(ItemDeleteBtnClickListener itemDeleteBtnClickListener) {
         this.itemDeleteBtnClickListener = itemDeleteBtnClickListener;
     }
 
-    static class AlbumDetailHolder extends RecyclerView.ViewHolder {
-        private ImageView imgTrack;
-        private TextView nameTrack;
-        private TextView nameArtist;
-        private ImageButton btnDeleteTrack;
+    class AlbumDetailHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.img_track)
+        ImageView imgTrack;
+        @BindView(R.id.name_track)
+        TextView nameTrack;
+        @BindView(R.id.name_artist)
+        TextView nameArtist;
+        @BindView(R.id.btn_add_track)
+        ImageButton btnDeleteTrack;
 
         AlbumDetailHolder(@NonNull View itemView) {
             super(itemView);
-            imgTrack = itemView.findViewById(R.id.img_track);
-            nameTrack = itemView.findViewById(R.id.name_track);
-            nameArtist = itemView.findViewById(R.id.name_artist);
-            btnDeleteTrack = itemView.findViewById(R.id.btn_add_track);
+            ButterKnife.bind(this, itemView);
             btnDeleteTrack.setImageResource(R.drawable.ic_more_vert);
+        }
+
+        @OnClick(R.id.btn_add_track)
+        void onItemBtnClick(){
+            itemDeleteBtnClickListener.onItemBtnClick(getTrackByPosition(getAdapterPosition()), getAdapterPosition());
         }
     }
 

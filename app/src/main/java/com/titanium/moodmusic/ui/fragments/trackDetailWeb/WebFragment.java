@@ -12,15 +12,20 @@ import android.webkit.WebViewClient;
 
 import com.titanium.moodmusic.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class WebFragment extends Fragment {
 
     public static final String EXTRA_URL_TRACK = "extra_track";
 
-    private WebView webView;
+    @BindView(R.id.wv_track)
+    WebView webView;
 
-    public WebFragment() {
+    private Unbinder unbinder;
 
-    }
+    public WebFragment() { }
 
     public static WebFragment newInstance(String url) {
         WebFragment fragment = new WebFragment();
@@ -41,7 +46,8 @@ public class WebFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_webview, container, false);
 
-        webView = view.findViewById(R.id.wv_track);
+        unbinder = ButterKnife.bind(this, view);
+
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient());
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE,null);
@@ -53,5 +59,9 @@ public class WebFragment extends Fragment {
         return view;
     }
 
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
 }

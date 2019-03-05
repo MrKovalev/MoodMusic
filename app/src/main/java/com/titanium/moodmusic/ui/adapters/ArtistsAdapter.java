@@ -14,8 +14,13 @@ import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.utils.ImageLoadUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsHolder> {
 
@@ -39,52 +44,46 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsH
     @Override
     public void onBindViewHolder(@NonNull ArtistsHolder artistsHolder, int i) {
         final Artist itemArtist = artistList.get(i);
-        ImageLoadUtils.loadImage(context,itemArtist.getImageUrl()
-                ,R.mipmap.noavatar,artistsHolder.artistsImageView);
-        artistsHolder.artistsName.setText(itemArtist.getName());
 
-        artistsHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                artistItemClickListener.onItemClick(itemArtist);
-            }
-        });
+        ImageLoadUtils.loadImage(context, itemArtist.getImageUrl()
+                , R.mipmap.noavatar, artistsHolder.artistsImageView);
+        artistsHolder.artistsName.setText(itemArtist.getName());
     }
 
     @Override
     public int getItemCount() {
-        if (artistList != null){
+        if (artistList != null) {
             return artistList.size();
         }
         return 0;
     }
 
-    public void setArtistList(List<Artist> artistList){
-        for(Artist artist : artistList){
+    public void setArtistList(List<Artist> artistList) {
+        for (Artist artist : artistList) {
             if (checkUniqueArtist(artist))
                 this.artistList.add(artist);
         }
         notifyDataSetChanged();
     }
 
-    public void setArtist(Artist artist){
+    public void setArtist(Artist artist) {
         this.artistList.add(artist);
-        notifyItemChanged(getItemCount() - 1);
+        notifyItemInserted(getItemCount() + 1);
     }
 
-    public Artist getArtistByPosition(int position){
+    public Artist getArtistByPosition(int position) {
         return artistList.get(position);
     }
 
-    public void clearArtistList(){
-        if (artistList != null){
+    public void clearArtistList() {
+        if (artistList != null) {
             artistList.clear();
             notifyDataSetChanged();
         }
     }
 
-    private boolean checkUniqueArtist(Artist artistForAnalyse){
-        for (Artist artist : this.artistList){
+    private boolean checkUniqueArtist(Artist artistForAnalyse) {
+        for (Artist artist : this.artistList) {
             if (artistForAnalyse.getMbid().equalsIgnoreCase(artist.getMbid()))
                 return false;
         }
@@ -92,23 +91,30 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsH
         return true;
     }
 
-    public void setArtistItemClickListener(ItemArtistClickListener itemClickListener){
+    public void setArtistItemClickListener(ItemArtistClickListener itemClickListener) {
         this.artistItemClickListener = itemClickListener;
     }
 
-     static class ArtistsHolder extends RecyclerView.ViewHolder{
+    class ArtistsHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.img_artist)
         ImageView artistsImageView;
+        @BindView(R.id.txt_artist_name)
         TextView artistsName;
 
-         ArtistsHolder(@NonNull View itemView) {
+        ArtistsHolder(@NonNull View itemView) {
             super(itemView);
-            artistsImageView = itemView.findViewById(R.id.img_artist);
-            artistsName = itemView.findViewById(R.id.txt_artist_name);
+            ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.cv_artist)
+        void onItemClicked() {
+            if (artistItemClickListener != null)
+                artistItemClickListener.onItemClick(getArtistByPosition(getAdapterPosition()));
         }
     }
 
-    public interface ItemArtistClickListener{
-        void onItemClick(Artist track);
+    public interface ItemArtistClickListener {
+        void onItemClick(Artist artist);
     }
 }

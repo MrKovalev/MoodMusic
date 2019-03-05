@@ -12,7 +12,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TracksPresenter implements ITracksPresenter{
+public class TracksPresenter implements ITracksPresenter {
 
     private ITracksView iTracksView;
     private ITracksInteractor iTracksInteractor;
@@ -30,17 +30,17 @@ public class TracksPresenter implements ITracksPresenter{
     @Override
     public void getTopChartTracks(int page, int limit, String apiKey) {
         iTracksView.showProgress();
-        Call<TopChartTracksResponce> listCall = iTracksInteractor.getTopChartTracks(page,limit,apiKey);
+        Call<TopChartTracksResponce> listCall = iTracksInteractor.getTopChartTracks(page, limit, apiKey);
         listCall.enqueue(new Callback<TopChartTracksResponce>() {
             @Override
             public void onResponse(Call<TopChartTracksResponce> call, Response<TopChartTracksResponce> response) {
 
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     List<Track> loadedTrackList = new ArrayList<>();
 
                     try {
                         loadedTrackList = response.body().getTracksResponce().getTrackList();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -59,19 +59,18 @@ public class TracksPresenter implements ITracksPresenter{
                 iTracksView.hideProgress();
             }
         });
-
     }
 
     @Override
     public void searchTrack(int limit, int page, String nameTrack, String nameArtist, String apiKey) {
         iTracksView.showProgress();
-        Call<SearchTrackResponce> listcall = iTracksInteractor.searchTrack(limit,page,nameTrack,nameArtist,apiKey);
+        Call<SearchTrackResponce> listcall = iTracksInteractor.searchTrack(limit, page, nameTrack, nameArtist, apiKey);
 
         listcall.enqueue(new Callback<SearchTrackResponce>() {
             @Override
             public void onResponse(Call<SearchTrackResponce> call, Response<SearchTrackResponce> response) {
 
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     List<Track> loadedTrackList = new ArrayList<>();
                     try {
                         loadedTrackList = response.body()
@@ -79,7 +78,7 @@ public class TracksPresenter implements ITracksPresenter{
                                 .getTrackListMatches()
                                 .getTrackList();
 
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
 
                     }
@@ -103,14 +102,14 @@ public class TracksPresenter implements ITracksPresenter{
 
 
     @Override
-    public void searchTracksByArtist(String nameArtist, String  mbid, int limit, int page, String apiKey) {
+    public void searchTracksByArtist(String nameArtist, String mbid, int limit, int page, String apiKey) {
         iTracksView.showProgress();
-        Call<TracksByArtistResponce> listCall = iTracksInteractor.searchTracksByArtist(nameArtist,mbid, limit,page,apiKey);
+        Call<TracksByArtistResponce> listCall = iTracksInteractor.searchTracksByArtist(nameArtist, mbid, limit, page, apiKey);
 
         listCall.enqueue(new Callback<TracksByArtistResponce>() {
             @Override
             public void onResponse(Call<TracksByArtistResponce> call, Response<TracksByArtistResponce> response) {
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
 
                     List<Track> trackList = new ArrayList<>();
 
@@ -118,7 +117,7 @@ public class TracksPresenter implements ITracksPresenter{
                         trackList = response.body()
                                 .getTracksByArtistResponce()
                                 .getTrackList();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -141,6 +140,6 @@ public class TracksPresenter implements ITracksPresenter{
 
     @Override
     public void openTrackDetail(List<Track> trackList, Track track, int position) {
-        iTracksView.openTrackDetail(trackList,track,position);
+        iTracksView.openTrackDetail(trackList, track, position);
     }
 }

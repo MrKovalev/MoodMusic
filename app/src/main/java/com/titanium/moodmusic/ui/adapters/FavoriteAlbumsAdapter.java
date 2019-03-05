@@ -17,6 +17,10 @@ import com.titanium.moodmusic.data.model.tracks.Track;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAdapter.AlbumsHolder> {
 
     private List<FavoriteAlbum> favoriteAlbumList = new ArrayList<>();
@@ -44,21 +48,6 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         albumsHolder.numAlbum.setText(String.valueOf(itemAlbum.getAlbumId() + "."));
         albumsHolder.nameAlbum.setText(itemAlbum.getNameAlbum());
         albumsHolder.countTracks.setText("треков:" + itemAlbum.getTrackList().size());
-
-        albumsHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                itemAlbumClickListener.onItemAlbumClick(itemAlbum);
-            }
-        });
-
-        albumsHolder.btnAlbumSettings.setImageResource(R.drawable.ic_more_vert);
-        albumsHolder.btnAlbumSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                albumClickListener.onItemBtnClick(itemAlbum, albumsHolder.getAdapterPosition());
-            }
-        });
     }
 
     @Override
@@ -72,6 +61,10 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
 
     public List<FavoriteAlbum> getAllAlbums() {
         return this.favoriteAlbumList;
+    }
+
+    public FavoriteAlbum getAlbumByPosition(int position) {
+        return favoriteAlbumList.get(position);
     }
 
     public void addTrackToAlbum(Track newTrack, int positionAlbum) {
@@ -111,9 +104,8 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
 
     public void addFavoriteAlbum(FavoriteAlbum favoriteAlbum) {
         this.favoriteAlbumList.add(favoriteAlbum);
-        notifyItemChanged(getItemCount() - 1);
+        notifyItemInserted(getItemCount() + 1);
     }
-
 
     public void editFavoriteAlbum(FavoriteAlbum favoriteAlbum) {
         int pos = favoriteAlbumList.lastIndexOf(favoriteAlbum);
@@ -137,27 +129,40 @@ public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAd
         this.itemAlbumClickListener = itemAlbumClickListener;
     }
 
+    class AlbumsHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.num_album)
+        TextView numAlbum;
+        @BindView(R.id.name_album)
+        TextView nameAlbum;
+        @BindView(R.id.count_tracks)
+        TextView countTracks;
+        @BindView(R.id.album_menu)
+        ImageButton btnAlbumSettings;
+
+        AlbumsHolder(@NonNull View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+            btnAlbumSettings.setImageResource(R.drawable.ic_more_vert);
+        }
+
+        @OnClick(R.id.cv_favorite_albums)
+        void onItemAlbumClick(){
+            itemAlbumClickListener.onItemAlbumClick(getAlbumByPosition(getAdapterPosition()));
+        }
+
+        @OnClick(R.id.album_menu)
+        void onItemBtnClick(){
+            albumClickListener.onItemBtnClick(getAlbumByPosition(getAdapterPosition()), getAdapterPosition());
+        }
+
+    }
+
     public interface ItemClickListener {
         void onItemAlbumClick(FavoriteAlbum favoriteAlbum);
     }
 
     public interface ItemAlbumBtnClickListener {
         void onItemBtnClick(FavoriteAlbum favoriteAlbum, int position);
-    }
-
-    static class AlbumsHolder extends RecyclerView.ViewHolder {
-
-        private TextView numAlbum;
-        private TextView nameAlbum;
-        private TextView countTracks;
-        private ImageButton btnAlbumSettings;
-
-        AlbumsHolder(@NonNull View itemView) {
-            super(itemView);
-            numAlbum = itemView.findViewById(R.id.num_album);
-            nameAlbum = itemView.findViewById(R.id.name_album);
-            countTracks = itemView.findViewById(R.id.count_tracks);
-            btnAlbumSettings = itemView.findViewById(R.id.album_menu);
-        }
     }
 }

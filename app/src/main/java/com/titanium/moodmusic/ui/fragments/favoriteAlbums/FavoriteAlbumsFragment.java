@@ -37,13 +37,22 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 public class FavoriteAlbumsFragment extends BaseFragment
             implements IFavoriteAlbumsView{
 
-    private RecyclerView tracksRecyclerView;
-    private ProgressBar progressBarMain;
-    private View emptyLayout;
-    private Button buttonAddAlbum;
+    @BindView(R.id.recycler_favorite_albums)
+    RecyclerView tracksRecyclerView;
+    @BindView(R.id.progress_favorite_albums)
+    ProgressBar progressBarMain;
+    @BindView(R.id.btn_add_album)
+    Button buttonAddAlbum;
+
+    private Unbinder unbinder;
 
     @Inject
     IFavoriteAlbumsPresenter favoriteAlbumsPresenter;
@@ -95,24 +104,18 @@ public class FavoriteAlbumsFragment extends BaseFragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.favorite_albums_fragment, container, false);
-        tracksRecyclerView = view.findViewById(R.id.recycler_favorite_albums);
-        progressBarMain = view.findViewById(R.id.progress_favorite_albums);
-        emptyLayout = view.findViewById(R.id.empty_layout_favorite);
-        buttonAddAlbum = view.findViewById(R.id.btn_add_album);
+        unbinder = ButterKnife.bind(this, view);
 
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false);
         tracksRecyclerView.setLayoutManager(linearLayoutManager);
         tracksRecyclerView.setAdapter(favoriteAlbumsAdapter);
 
-
-        buttonAddAlbum.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                prepareAlertDialogAddEditAlbum(null,false);
-            }
-        });
-
         return view;
+    }
+
+    @OnClick(R.id.btn_add_album)
+    void onBtnAdded(){
+        prepareAlertDialogAddEditAlbum(null,false);
     }
 
     @Override
@@ -128,10 +131,13 @@ public class FavoriteAlbumsFragment extends BaseFragment
     }
 
     @Override
-    protected void search(String query) {
-
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
+    @Override
+    protected void search(String query) { }
 
     @Override
     public void loadAlbums(List<FavoriteAlbum> albumList) {
@@ -152,7 +158,6 @@ public class FavoriteAlbumsFragment extends BaseFragment
     public void deleteAlbum(int position) {
         favoriteAlbumsAdapter.deleteFavoriteAlbum(position);
     }
-
 
     public List<FavoriteAlbum> getAllAlbums(){
         return favoriteAlbumsAdapter.getAllAlbums();

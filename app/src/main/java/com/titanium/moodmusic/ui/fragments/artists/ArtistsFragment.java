@@ -31,16 +31,23 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class ArtistsFragment extends BaseFragment
         implements IArtistsView
         , SearchView.OnQueryTextListener
         , SearchView.OnCloseListener {
 
-    private RecyclerView artistsRecyclerView;
-    private SearchView searchView;
-    private ProgressBar progressBarMain;
+    @BindView(R.id.recycler_artists)
+    RecyclerView artistsRecyclerView;
+    SearchView searchView;
+    @BindView(R.id.progress_artist)
+    ProgressBar progressBarMain;
+
     private onFragmentInteractionListener interactionListener;
-    private View emptyLayout;
+    private Unbinder unbinder;
 
     @Inject
     IArtistsPresenter artistsPresenter;
@@ -112,9 +119,7 @@ public class ArtistsFragment extends BaseFragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.artists_fragment, container, false);
-        artistsRecyclerView = view.findViewById(R.id.recycler_artists);
-        progressBarMain = view.findViewById(R.id.progress_artist);
-        emptyLayout = view.findViewById(R.id.empty_layout_artists);
+        unbinder = ButterKnife.bind(this, view);
 
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         artistsRecyclerView.setLayoutManager(linearLayoutManager);
@@ -149,6 +154,12 @@ public class ArtistsFragment extends BaseFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         artistsPresenter.getTopChartArtists(Constants.DEFAULT_PAGE_CHART, Constants.TOP_ITEMS_LIMIT_CHART, Constants.API_KEY);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     @Override

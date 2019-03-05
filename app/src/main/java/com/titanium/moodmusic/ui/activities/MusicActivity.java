@@ -16,6 +16,8 @@ import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 import com.titanium.moodmusic.data.model.tracks.Track;
+import com.titanium.moodmusic.di.components.*;
+import com.titanium.moodmusic.di.modules.activity_level.MusicActivityAdapterModule;
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
 import com.titanium.moodmusic.ui.fragments.artists.ArtistsFragment;
 import com.titanium.moodmusic.ui.fragments.favoriteAlbumTracks.FavoriteAlbumTracksFragment;
@@ -28,35 +30,43 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MusicActivity extends AppCompatActivity
                 implements ArtistsFragment.onFragmentInteractionListener,
         TracksFragment.onFragmentTrackGetAlbumsInteractionListener,
         TracksFragment.onFragmentTrackAddToAlbumInteractionListener,
         FavoriteAlbumTracksFragment.onFragmentTrackDeleteFromAlbumInteractionListener {
 
-    private TabLayout tableLayout;
-    private ViewPager viewPager;
-    private MainPagerAdapter mainPagerAdapter;
-    private Toolbar toolbar;
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
+    @BindView(R.id.tl_main)
+    TabLayout tableLayout;
+    @BindView(R.id.vp_main)
+    ViewPager viewPager;
+    @BindView(R.id.main_toolbar)
+    Toolbar toolbar;
 
+    @Inject
+    MainPagerAdapter mainPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.main_toolbar);
+        ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        viewPager = findViewById(R.id.vp_main);
-        tableLayout = findViewById(R.id.tl_main);
+        DaggerMusicActivityComponent.builder()
+                .musicActivityAdapterModule(new MusicActivityAdapterModule(getSupportFragmentManager(),this))
+                .build()
+                .inject(this);
 
         setupToolbarAndNavigationMenu();
         initFragments();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -78,7 +88,6 @@ public class MusicActivity extends AppCompatActivity
     }
 
     private void initFragments(){
-        mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(),this);
         viewPager.setAdapter(mainPagerAdapter);
         viewPager.setOffscreenPageLimit(3);
         tableLayout.setupWithViewPager(viewPager);

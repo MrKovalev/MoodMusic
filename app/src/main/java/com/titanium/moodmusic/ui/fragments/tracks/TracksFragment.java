@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -41,24 +41,30 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class TracksFragment extends BaseFragment
         implements ITracksView
-            ,SearchView.OnQueryTextListener
-            ,SearchView.OnCloseListener {
+        , SearchView.OnQueryTextListener
+        , SearchView.OnCloseListener {
 
     public static final String EXTRA_CAN_SHOW_TRACKS_BY_ARTIST = "EXTRA_CAN_SHOW_TRACKS_BY_ARTIST";
     public static final String EXTRA_ARIST_NAME = "EXTRA_ARIST_NAME";
 
-    private RecyclerView tracksRecyclerView;
-    private ImageButton btnAddTrackToAlbum;
-    private SearchView searchView;
-    private ProgressBar progressBarMain;
-    private View emptyLayout;
+    @BindView(R.id.recycler_tracks)
+    RecyclerView tracksRecyclerView;
+    SearchView searchView;
+    @BindView(R.id.progress_tracks)
+    ProgressBar progressBarMain;
 
     @Inject
     ITracksPresenter tracksPresenter;
     @Inject
     TracksAdapter tracksAdapter;
+
+    private Unbinder unbinder;
 
     private onFragmentTrackGetAlbumsInteractionListener onFragmentTrackInteractionListener;
     private onFragmentTrackAddToAlbumInteractionListener onFragmentTrackAddToAlbumInteractionListener;
@@ -69,13 +75,14 @@ public class TracksFragment extends BaseFragment
 
     private Bundle bundle;
 
-    public TracksFragment() { }
+    public TracksFragment() {
+    }
 
     public static TracksFragment newInstance() {
         return new TracksFragment();
     }
 
-    //calls only case loading artist's tracks
+    //вызывается только в случае, если мы просматриваем треки конкретного артиста из 1 фрагмента
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -94,7 +101,6 @@ public class TracksFragment extends BaseFragment
             }
         }
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -156,9 +162,8 @@ public class TracksFragment extends BaseFragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tracks_fragment, container, false);
-        tracksRecyclerView = view.findViewById(R.id.recycler_tracks);
-        progressBarMain = view.findViewById(R.id.progress_tracks);
-        emptyLayout = view.findViewById(R.id.empty_layout_tracks);
+
+        unbinder = ButterKnife.bind(this, view);
 
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         tracksRecyclerView.setLayoutManager(linearLayoutManager);
@@ -195,6 +200,12 @@ public class TracksFragment extends BaseFragment
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         onFragmentTrackInteractionListener = null;
@@ -202,13 +213,14 @@ public class TracksFragment extends BaseFragment
     }
 
 
-
-
-
     @Override
     protected void search(String query) {
         isSearchingNow = true;
-        getFragmentManager().popBackStack();
+
+        FragmentManager fragmentManager = getFragmentManager();
+        if (fragmentManager != null)
+            fragmentManager.popBackStack();
+
         tracksPresenter.searchTrack(Constants.TOP_ITEMS_LIMIT_SEARCH,
                 Constants.DEFAULT_PAGE_SEARCH, query, null, Constants.API_KEY);
     }
@@ -336,7 +348,6 @@ public class TracksFragment extends BaseFragment
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
-
 
     public interface onFragmentTrackGetAlbumsInteractionListener {
         List<FavoriteAlbum> onFragmentTrackGetAlbumsInteraction();

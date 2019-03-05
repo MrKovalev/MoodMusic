@@ -44,7 +44,6 @@ public class ArtistsPresenter implements IArtistsPresenter {
                     iArtistsView.loadArtists(loadedArtistsList);
                     iArtistsView.hideProgress();
                 } else {
-
                     iArtistsView.showError();
                     iArtistsView.hideProgress();
                 }
@@ -84,8 +83,6 @@ public class ArtistsPresenter implements IArtistsPresenter {
                     iArtistsView.hideProgress();
                     iArtistsView.searchArtists(loadedArtistsList);
                 } else {
-                    Log.d("TAG", "UNKNOWN ERROR 3");
-                    iArtistsView.showError();
                     iArtistsView.hideProgress();
                 }
             }
