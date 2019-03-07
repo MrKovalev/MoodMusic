@@ -16,6 +16,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
+/** Класс отвечает за отображение данных в виде браузерной странице **/
+
 public class WebFragment extends Fragment {
 
     public static final String EXTRA_URL_TRACK = "extra_track";

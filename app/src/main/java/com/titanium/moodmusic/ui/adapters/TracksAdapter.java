@@ -22,6 +22,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/** Класс отвечает за заполнение, отображение, взаимодействие,
+ *  преобразование данных в RecyclerView треков **/
+
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TracksHolder> {
 
     private List<Track> trackList = new ArrayList<>();

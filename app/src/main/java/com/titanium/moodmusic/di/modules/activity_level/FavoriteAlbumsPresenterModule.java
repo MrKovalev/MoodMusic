@@ -1,6 +1,5 @@
 package com.titanium.moodmusic.di.modules.activity_level;
 
-import com.titanium.moodmusic.data.db.AsyncDataLoader;
 import com.titanium.moodmusic.data.db.dao.MusicDao;
 import com.titanium.moodmusic.di.modules.app_level.RoomModule;
 import com.titanium.moodmusic.ui.fragments.favoriteAlbums.FavoriteAlbumsInteractor;
@@ -26,8 +25,8 @@ public class FavoriteAlbumsPresenterModule {
     @Singleton
     @Provides
     public IFavoriteAlbumsPresenter providesFavoriteAlbumsPresenter(IFavoriteAlbumsView iFavoriteAlbumsView
-            , IFavoriteAlbumsInteractor iFavoriteAlbumsInteractor, AsyncDataLoader asyncDataLoader){
-        return new FavoriteAlbumsPresenter(iFavoriteAlbumsView,iFavoriteAlbumsInteractor, asyncDataLoader);
+            , IFavoriteAlbumsInteractor iFavoriteAlbumsInteractor){
+        return new FavoriteAlbumsPresenter(iFavoriteAlbumsView,iFavoriteAlbumsInteractor);
     }
 
     @Singleton
@@ -40,11 +39,5 @@ public class FavoriteAlbumsPresenterModule {
     @Provides
     public IFavoriteAlbumsInteractor providesFavoriteAlbumsInteractor(MusicDao musicDao){
         return new FavoriteAlbumsInteractor(musicDao);
-    }
-
-    @Singleton
-    @Provides
-    public AsyncDataLoader providesAsyncDataLoader(MusicDao musicDao){
-        return new AsyncDataLoader(musicDao);
     }
 }

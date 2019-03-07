@@ -35,6 +35,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
+/** Класс отвечает за отображение данных, взаимодействие с пользователем **/
+
 public class ArtistsFragment extends BaseFragment
         implements IArtistsView
         , SearchView.OnQueryTextListener
@@ -88,6 +90,7 @@ public class ArtistsFragment extends BaseFragment
                 .build()
                 .inject(this);
 
+        //при нажатии происходит переброс на треки и загрузка треков данного исполнителя
         artistsAdapter.setArtistItemClickListener(new ArtistsAdapter.ItemArtistClickListener() {
             @Override
             public void onItemClick(Artist artist) {
@@ -125,6 +128,7 @@ public class ArtistsFragment extends BaseFragment
         artistsRecyclerView.setLayoutManager(linearLayoutManager);
         artistsRecyclerView.setAdapter(artistsAdapter);
 
+        //подгрузка при прокрутке
         artistsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -160,6 +164,12 @@ public class ArtistsFragment extends BaseFragment
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        artistsPresenter.onDestroy();
     }
 
     @Override
@@ -207,6 +217,9 @@ public class ArtistsFragment extends BaseFragment
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        if (newText == null || newText.isEmpty())
+            newText = "None";
+
         search(newText);
         return false;
     }

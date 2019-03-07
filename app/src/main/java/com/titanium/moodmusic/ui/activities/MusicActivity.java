@@ -56,9 +56,11 @@ public class MusicActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //инитим UI
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
+        //внедряем зависимости
         DaggerMusicActivityComponent.builder()
                 .musicActivityAdapterModule(new MusicActivityAdapterModule(getSupportFragmentManager(),this))
                 .build()
@@ -87,6 +89,8 @@ public class MusicActivity extends AppCompatActivity
         return false;
     }
 
+    /** Вспомогательные локальные методы **/
+
     private void initFragments(){
         viewPager.setAdapter(mainPagerAdapter);
         viewPager.setOffscreenPageLimit(3);
@@ -99,6 +103,9 @@ public class MusicActivity extends AppCompatActivity
         if (actionBar != null)
             actionBar.setDisplayShowTitleEnabled(true);
     }
+
+
+    /** Методы для взаимодействия между фрагментами **/
 
     @Override
     public void onFragmentArtistInteraction(Bundle data) {

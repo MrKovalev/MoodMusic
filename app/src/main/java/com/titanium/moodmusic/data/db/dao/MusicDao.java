@@ -11,11 +11,16 @@ import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+
+
+/** Класс содержит методы работы с базой данных **/
 @Dao
 public interface MusicDao {
 
     @Query("select * from favoritealbumtable")
-    List<FavoriteAlbumTable> getAllAlbums();
+    Single<List<FavoriteAlbumTable>> getAllAlbums();
 
     @Query("select * from favoritealbumtable where idAlbum = :id")
     FavoriteAlbumTable getAlbumById(long id);

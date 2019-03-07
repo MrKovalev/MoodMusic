@@ -45,6 +45,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
+/** Класс отвечает за отображение данных, взаимодействие с пользователем **/
+
 public class TracksFragment extends BaseFragment
         implements ITracksView
         , SearchView.OnQueryTextListener
@@ -206,6 +208,12 @@ public class TracksFragment extends BaseFragment
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        tracksPresenter.onDestroy();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         onFragmentTrackInteractionListener = null;
@@ -333,8 +341,6 @@ public class TracksFragment extends BaseFragment
         builder.setItems(choices, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d("TAG", "ADDED = " + track.getArtist());
-
                 if (isUniqueAddingTrackToAlbum(track, listAlbums.get(which))) {
                     onFragmentTrackAddToAlbumInteractionListener.onFragmentTrackAddToAlbumInteraction(track, which);
                     Toast.makeText(getContext(), "Трек успешно добавлен в альбом", Toast.LENGTH_SHORT).show();

@@ -8,14 +8,22 @@ import com.titanium.moodmusic.data.model.responces.TopChartTracksResponce;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+/** Класс посредник-обработчик между View и Model **/
 
 public class TracksPresenter implements ITracksPresenter {
 
     private ITracksView iTracksView;
     private ITracksInteractor iTracksInteractor;
+    private Disposable disposable;
 
     public TracksPresenter(ITracksView iTracksView, ITracksInteractor iTracksInteractor) {
         this.iTracksView = iTracksView;
@@ -23,123 +31,130 @@ public class TracksPresenter implements ITracksPresenter {
     }
 
     @Override
-    public void onDestroy() {
-
-    }
-
-    @Override
     public void getTopChartTracks(int page, int limit, String apiKey) {
+        disposeRequest();
+
         iTracksView.showProgress();
-        Call<TopChartTracksResponce> listCall = iTracksInteractor.getTopChartTracks(page, limit, apiKey);
-        listCall.enqueue(new Callback<TopChartTracksResponce>() {
-            @Override
-            public void onResponse(Call<TopChartTracksResponce> call, Response<TopChartTracksResponce> response) {
+        disposable = iTracksInteractor.getTopChartTracks(page, limit, apiKey)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Function<TopChartTracksResponce, List<Track>>() {
+                    @Override
+                    public List<Track> apply(TopChartTracksResponce topChartTracksResponce) throws Exception {
+                        if (topChartTracksResponce != null && topChartTracksResponce.getTracksResponce() != null) {
+                            return topChartTracksResponce.getTracksResponce().getTrackList();
+                        }
 
-                if (response.isSuccessful()) {
-                    List<Track> loadedTrackList = new ArrayList<>();
-
-                    try {
-                        loadedTrackList = response.body().getTracksResponce().getTrackList();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        return new ArrayList<Track>();
                     }
-
-                    iTracksView.loadTracks(loadedTrackList);
-                    iTracksView.hideProgress();
-                } else {
-                    iTracksView.showError();
-                    iTracksView.hideProgress();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<TopChartTracksResponce> call, Throwable t) {
-                t.printStackTrace();
-                iTracksView.showError();
-                iTracksView.hideProgress();
-            }
-        });
+                })
+                .subscribe(new Consumer<List<Track>>() {
+                    @Override
+                    public void accept(List<Track> trackList) throws Exception {
+                        if (iTracksView != null) {
+                            iTracksView.hideProgress();
+                            iTracksView.loadTracks(trackList);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (iTracksView != null) {
+                            iTracksView.hideProgress();
+                            iTracksView.showError();
+                        }
+                    }
+                });
     }
 
     @Override
     public void searchTrack(int limit, int page, String nameTrack, String nameArtist, String apiKey) {
+        disposeRequest();
+
         iTracksView.showProgress();
-        Call<SearchTrackResponce> listcall = iTracksInteractor.searchTrack(limit, page, nameTrack, nameArtist, apiKey);
+        disposable = iTracksInteractor.searchTrack(limit, page, nameTrack, nameArtist, apiKey)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Function<SearchTrackResponce, List<Track>>() {
+                    @Override
+                    public List<Track> apply(SearchTrackResponce searchTrackResponce) throws Exception {
+                        if (searchTrackResponce != null && searchTrackResponce.getTrackListResponce() != null) {
+                            return searchTrackResponce.getTrackListResponce().getTrackListMatches().getTrackList();
+                        }
 
-        listcall.enqueue(new Callback<SearchTrackResponce>() {
-            @Override
-            public void onResponse(Call<SearchTrackResponce> call, Response<SearchTrackResponce> response) {
-
-                if (response.isSuccessful()) {
-                    List<Track> loadedTrackList = new ArrayList<>();
-                    try {
-                        loadedTrackList = response.body()
-                                .getTrackListResponce()
-                                .getTrackListMatches()
-                                .getTrackList();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-
+                        return new ArrayList<Track>();
                     }
-
-                    iTracksView.searchTracks(loadedTrackList);
-                    iTracksView.hideProgress();
-                } else {
-                    iTracksView.showError();
-                    iTracksView.hideProgress();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SearchTrackResponce> call, Throwable t) {
-                t.printStackTrace();
-                iTracksView.showError();
-                iTracksView.hideProgress();
-            }
-        });
+                })
+                .subscribe(new Consumer<List<Track>>() {
+                    @Override
+                    public void accept(List<Track> trackList) throws Exception {
+                        if (iTracksView != null) {
+                            iTracksView.hideProgress();
+                            iTracksView.searchTracks(trackList);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (iTracksView != null) {
+                            iTracksView.hideProgress();
+                            iTracksView.showError();
+                        }
+                    }
+                });
     }
-
 
     @Override
     public void searchTracksByArtist(String nameArtist, String mbid, int limit, int page, String apiKey) {
+        disposeRequest();
+
         iTracksView.showProgress();
-        Call<TracksByArtistResponce> listCall = iTracksInteractor.searchTracksByArtist(nameArtist, mbid, limit, page, apiKey);
+        disposable = iTracksInteractor.searchTracksByArtist(nameArtist, mbid, limit, page, apiKey)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Function<TracksByArtistResponce, List<Track>>() {
+                    @Override
+                    public List<Track> apply(TracksByArtistResponce tracksByArtistResponce) throws Exception {
+                        if (tracksByArtistResponce != null && tracksByArtistResponce.getTracksByArtistResponce() != null) {
+                            return tracksByArtistResponce.getTracksByArtistResponce().getTrackList();
+                        }
 
-        listCall.enqueue(new Callback<TracksByArtistResponce>() {
-            @Override
-            public void onResponse(Call<TracksByArtistResponce> call, Response<TracksByArtistResponce> response) {
-                if (response.isSuccessful()) {
-
-                    List<Track> trackList = new ArrayList<>();
-
-                    try {
-                        trackList = response.body()
-                                .getTracksByArtistResponce()
-                                .getTrackList();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        return new ArrayList<Track>();
                     }
-
-                    iTracksView.searchTracksByArtist(trackList);
-                    iTracksView.hideProgress();
-                } else {
-                    iTracksView.hideProgress();
-                    iTracksView.showError();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<TracksByArtistResponce> call, Throwable t) {
-                t.printStackTrace();
-                iTracksView.hideProgress();
-                iTracksView.showError();
-            }
-        });
+                })
+                .subscribe(new Consumer<List<Track>>() {
+                    @Override
+                    public void accept(List<Track> trackList) throws Exception {
+                        if (iTracksView != null) {
+                            iTracksView.hideProgress();
+                            iTracksView.searchTracksByArtist(trackList);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (iTracksView != null) {
+                            iTracksView.hideProgress();
+                            iTracksView.showError();
+                        }
+                    }
+                });
     }
 
     @Override
     public void openTrackDetail(List<Track> trackList, Track track, int position) {
         iTracksView.openTrackDetail(trackList, track, position);
+    }
+
+    @Override
+    public void onDestroy() {
+        disposeRequest();
+    }
+
+    private void disposeRequest() {
+        if (disposable != null) {
+            if (!disposable.isDisposed())
+                disposable.dispose();
+        }
     }
 }

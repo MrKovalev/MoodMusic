@@ -6,96 +6,114 @@ import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.data.model.responces.SearchArtistResponce;
 import com.titanium.moodmusic.data.model.responces.TopChartArtistsResponce;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/** Класс посредник-обработчик между View и Model **/
+
 public class ArtistsPresenter implements IArtistsPresenter {
 
     IArtistsView iArtistsView;
     IArtistsInteractor iArtistsInteractor;
+    private Disposable disposable;
 
     public ArtistsPresenter(IArtistsView iArtistsView, IArtistsInteractor iArtistsInteractor) {
         this.iArtistsView = iArtistsView;
         this.iArtistsInteractor = iArtistsInteractor;
     }
 
-    @Override
     public void getTopChartArtists(int page, int limit, String apiKey) {
         iArtistsView.showProgress();
 
-        Call<TopChartArtistsResponce> listCall = iArtistsInteractor.getTopChartArtists(page, limit, apiKey);
-        listCall.enqueue(new Callback<TopChartArtistsResponce>() {
-            @Override
-            public void onResponse(Call<TopChartArtistsResponce> call, Response<TopChartArtistsResponce> response) {
-
-                if (response.isSuccessful()) {
-                    List<Artist> loadedArtistsList = new ArrayList<>();
-
-                    try {
-                        loadedArtistsList = response.body().getArtistListResponce().getArtistList();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        disposable = iArtistsInteractor.getTopChartArtists(page, limit, apiKey)
+                .subscribeOn(Schedulers.io())  //запускаем запрос и получаем рузультат в фоновом потоке
+                .observeOn(AndroidSchedulers.mainThread()) //возвращаемся в ui поток
+                .map(new Function<TopChartArtistsResponce, List<Artist>>() { // через map преобразовываем TopChartArtistsResponce в List<Artist>
+                    @Override
+                    public List<Artist> apply(TopChartArtistsResponce topChartArtistsResponce) throws Exception {
+                        if (topChartArtistsResponce != null && topChartArtistsResponce.getArtistListResponce() != null) {
+                            return topChartArtistsResponce.getArtistListResponce().getArtistList();
+                        }
+                        return new ArrayList<Artist>();
                     }
-
-                    iArtistsView.loadArtists(loadedArtistsList);
-                    iArtistsView.hideProgress();
-                } else {
-                    iArtistsView.showError();
-                    iArtistsView.hideProgress();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<TopChartArtistsResponce> call, Throwable t) {
-                t.printStackTrace();
-                iArtistsView.showError();
-                iArtistsView.hideProgress();
-            }
-        });
+                })
+                .subscribe(new Consumer<List<Artist>>() {    //при успешном получении списка артистов отдаем во View
+                    @Override
+                    public void accept(List<Artist> artists) throws Exception {
+                        if (iArtistsView != null) {
+                            iArtistsView.hideProgress();
+                            iArtistsView.loadArtists(artists);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {  //выкидываем ошибку при проблемах с ответом
+                        if (iArtistsView != null) {
+                            iArtistsView.hideProgress();
+                            iArtistsView.showError();
+                        }
+                    }
+                });
     }
 
     @Override
     public void searchArtist(int page, int limit, String name, String apiKey) {
+        disposeRequest();
+
         iArtistsView.showProgress();
+        disposable = iArtistsInteractor.searchArtist(page, limit, name, apiKey)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Function<SearchArtistResponce, List<Artist>>() {
+                    @Override
+                    public List<Artist> apply(SearchArtistResponce searchArtistResponce) throws Exception {
+                        if (searchArtistResponce != null && searchArtistResponce.getSearchArtist() != null) {
+                            return searchArtistResponce.getSearchArtist().getArtistListMatches().getArtistList();
+                        }
 
-        Call<SearchArtistResponce> listCall = iArtistsInteractor.searchArtist(page, limit, name, apiKey);
-        listCall.enqueue(new Callback<SearchArtistResponce>() {
-            @Override
-            public void onResponse(Call<SearchArtistResponce> call, Response<SearchArtistResponce> response) {
-
-                if (response.isSuccessful()) {
-                    List<Artist> loadedArtistsList = new ArrayList<>();
-
-                    try {
-                        loadedArtistsList = response.body()
-                                .getSearchArtist()
-                                .getArtistListMatches()
-                                .getArtistList();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        return new ArrayList<Artist>();
                     }
-
-                    iArtistsView.hideProgress();
-                    iArtistsView.searchArtists(loadedArtistsList);
-                } else {
-                    iArtistsView.hideProgress();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SearchArtistResponce> call, Throwable t) {
-                t.printStackTrace();
-                iArtistsView.showError();
-                iArtistsView.hideProgress();
-            }
-        });
+                })
+                .subscribe(new Consumer<List<Artist>>() {
+                    @Override
+                    public void accept(List<Artist> artists) throws Exception {
+                        if (iArtistsView != null) {
+                            iArtistsView.hideProgress();
+                            iArtistsView.searchArtists(artists);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (iArtistsView != null) {
+                            iArtistsView.hideProgress();
+                            iArtistsView.showError();
+                        }
+                    }
+                });
     }
 
     @Override
-    public void onDestroy() { }
+    public void onDestroy() {
+        disposeRequest();
+    }
+
+    private void disposeRequest() {
+        if (disposable != null) {
+            if (!disposable.isDisposed())
+                disposable.dispose();
+        }
+    }
 }

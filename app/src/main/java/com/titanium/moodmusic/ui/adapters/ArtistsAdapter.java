@@ -22,6 +22,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/** Класс отвечает за заполнение, отображение, взаимодействие,
+ *  преобразование данных в RecyclerView исполнителей **/
+
 public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsHolder> {
 
     private List<Artist> artistList = new ArrayList<>();

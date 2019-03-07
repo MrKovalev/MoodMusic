@@ -2,6 +2,8 @@ package com.titanium.moodmusic.utils;
 
 import android.content.Intent;
 
+/** Вспомогательный класс для реализации функции рекомендации приложения **/
+
 public class ShareUtils {
 
     public static Intent shareAppAction(){
@@ -10,7 +12,7 @@ public class ShareUtils {
         String shareBody = "Let me recommend you this application\n\n";
         shareBody = shareBody + "https://github.com/MrKovalev/MoodMusic" +"\n\n";
 
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Mood Music");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Mood app_icon");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
 
         return Intent.createChooser(sharingIntent, "Share via");

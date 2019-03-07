@@ -7,6 +7,8 @@ import com.bumptech.glide.Glide;
 
 import java.lang.ref.WeakReference;
 
+/** Вспомогательный класс для загрузки изображений через Glide **/
+
 public class ImageLoadUtils {
 
     public static void loadImage(Context context, String imgUrl, int placeHolderResourseId, ImageView imageView){

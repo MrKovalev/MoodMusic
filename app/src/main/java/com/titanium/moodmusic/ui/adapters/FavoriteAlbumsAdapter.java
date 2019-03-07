@@ -21,6 +21,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/** Класс отвечает за заполнение, отображение, взаимодействие,
+ *  преобразование данных в RecyclerView избранных альбомов **/
+
 public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAdapter.AlbumsHolder> {
 
     private List<FavoriteAlbum> favoriteAlbumList = new ArrayList<>();

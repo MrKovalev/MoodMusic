@@ -5,6 +5,8 @@ import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 import java.util.List;
 
 public interface IFavoriteAlbumsPresenter {
+    void onDestroy();
+
     void getFavoriteAlbums();
     void searchAlbum(String nameAlbum);
     void saveAlbumsToDatabase(List<FavoriteAlbum> favoriteAlbumList);

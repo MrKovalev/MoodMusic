@@ -9,6 +9,11 @@ import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+
+/** Класс отвечает за взаимодействие с данными, их получение из API, DB.. **/
+
 public class FavoriteAlbumsInteractor implements IFavoriteAlbumsInteractor {
 
     private MusicDao musicDao;
@@ -18,37 +23,23 @@ public class FavoriteAlbumsInteractor implements IFavoriteAlbumsInteractor {
     }
 
     @Override
-    public List<FavoriteAlbumTable> getFavoriteAlbums() {
-        return new ArrayList<FavoriteAlbumTable>();
-        //return musicDao.getAllAlbums();
+    public Single<List<FavoriteAlbumTable>> getFavoriteAlbums() {
+        return musicDao.getAllAlbums();
     }
 
     @Override
     public void saveAlbumsToDatabase(final List<FavoriteAlbum> favoriteAlbums) {
-        Thread threadWriteData = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("TAG", "SAVE TO DB IN ANOTHER THREAD");
-                Log.d("TAG", "count data = "+favoriteAlbums.size());
+        musicDao.deleteAllAlbums();
 
-                musicDao.deleteAllAlbums();
+        for (FavoriteAlbum item : favoriteAlbums) {
+            FavoriteAlbumTable favoriteAlbumTable = new FavoriteAlbumTable();
+            favoriteAlbumTable.setIdAlbum(item.getAlbumId());
+            favoriteAlbumTable.setNameAlbum(item.getNameAlbum());
+            favoriteAlbumTable.setCountSongsInAlbum(item.getCountSongsInAlbum());
+            favoriteAlbumTable.setTrackList(item.getTrackList());
 
-                for (FavoriteAlbum item : favoriteAlbums) {
-
-                    Log.d("TAG", "count data list = "+item.getTrackList().size());
-
-                    FavoriteAlbumTable favoriteAlbumTable = new FavoriteAlbumTable();
-                    favoriteAlbumTable.setIdAlbum(item.getAlbumId());
-                    favoriteAlbumTable.setNameAlbum(item.getNameAlbum());
-                    favoriteAlbumTable.setCountSongsInAlbum(item.getCountSongsInAlbum());
-                    favoriteAlbumTable.setTrackList(item.getTrackList());
-
-                    musicDao.insertAlbum(favoriteAlbumTable);
-                }
-            }
-        });
-
-        threadWriteData.start();
+            musicDao.insertAlbum(favoriteAlbumTable);
+        }
     }
 
     @Override

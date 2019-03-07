@@ -6,10 +6,11 @@ import com.titanium.moodmusic.data.model.responces.TopChartArtistsResponce;
 import com.titanium.moodmusic.data.model.responces.TopChartTracksResponce;
 import com.titanium.moodmusic.data.model.responces.TracksByArtistResponce;
 
+import io.reactivex.Single;
 import retrofit2.Call;
 
 public interface ITracksInteractor {
-    Call<TopChartTracksResponce> getTopChartTracks(int page, int limit, String apiKey);
-    Call<SearchTrackResponce> searchTrack(int limit, int page, String nameTrack, String nameArtist, String apiKey);
-    Call<TracksByArtistResponce> searchTracksByArtist(String nameArtist, String mbid, int limit, int page, String apiKey);
+    Single<TopChartTracksResponce> getTopChartTracks(int page, int limit, String apiKey);
+    Single<SearchTrackResponce> searchTrack(int limit, int page, String nameTrack, String nameArtist, String apiKey);
+    Single<TracksByArtistResponce> searchTracksByArtist(String nameArtist, String mbid, int limit, int page, String apiKey);
 }

@@ -33,6 +33,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
+/** Класс отвечает за отображение данных, взаимодействие с пользователем **/
+
 public class FavoriteAlbumTracksFragment extends BaseFragment {
 
     public static final String EXTRA_ALBUM_TRACK_LIST = "EXTRA_ALBUM_TRACK_LIST";

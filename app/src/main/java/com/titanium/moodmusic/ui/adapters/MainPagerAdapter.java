@@ -17,6 +17,8 @@ import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 
+/** Класс отвечает настройку фрагментов в основной активити **/
+
 public class MainPagerAdapter extends FragmentPagerAdapter {
 
     public static final int NUMBER_OF_ITEMS = 3;

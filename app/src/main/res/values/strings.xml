@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MoodMusic</string>
+    <string name="app_name">Mood Music</string>
     <string name="search_name">Поиск</string>
     <string name="empty_query">Не найдено</string>
     <string name="artists_title">Исполнители</string>

@@ -2,44 +2,60 @@ package com.titanium.moodmusic.ui.fragments.favoriteAlbums;
 
 import android.util.Log;
 
-import com.titanium.moodmusic.data.db.AsyncDataLoader;
 import com.titanium.moodmusic.data.db.entity.FavoriteAlbumTable;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
+/** Класс посредник-обработчик между View и Model **/
+
 public class FavoriteAlbumsPresenter implements IFavoriteAlbumsPresenter {
 
     IFavoriteAlbumsView iFavoriteAlbumsView;
     IFavoriteAlbumsInteractor iFavoriteAlbumsInteractor;
-    AsyncDataLoader asyncDataLoader;
+    private Disposable disposable;
 
-    public FavoriteAlbumsPresenter(IFavoriteAlbumsView iFavoriteAlbumsView, IFavoriteAlbumsInteractor iFavoriteAlbumsInteractor, AsyncDataLoader asyncDataLoader) {
+
+    public FavoriteAlbumsPresenter(IFavoriteAlbumsView iFavoriteAlbumsView, IFavoriteAlbumsInteractor iFavoriteAlbumsInteractor) {
         this.iFavoriteAlbumsView = iFavoriteAlbumsView;
         this.iFavoriteAlbumsInteractor = iFavoriteAlbumsInteractor;
-        this.asyncDataLoader = asyncDataLoader;
     }
 
     @Override
     public void getFavoriteAlbums() {
-
-        asyncDataLoader.setAsyncResponceResult(new AsyncDataLoader.AsyncResponceResult() {
-            @Override
-            public void onTaskComplete(List<FavoriteAlbumTable> result) {
-                Log.d("TAG","interface getResult");
-                Log.d("TAG","result = "+result.size());
-                iFavoriteAlbumsView.loadAlbums(castAlbumsFromDb(result));
-            }
-        });
-
-        asyncDataLoader.execute();
+        disposable = iFavoriteAlbumsInteractor.getFavoriteAlbums()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<FavoriteAlbumTable>>() {
+                    @Override
+                    public void accept(List<FavoriteAlbumTable> favoriteAlbumTableList) throws Exception {
+                        iFavoriteAlbumsView.loadAlbums(castAlbumsFromDb(favoriteAlbumTableList));
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
+                    }
+                });
     }
 
     @Override
-    public void saveAlbumsToDatabase(List<FavoriteAlbum> favoriteAlbumList) {
-        Log.d("TAG","save to db, presenter");
-        iFavoriteAlbumsInteractor.saveAlbumsToDatabase(favoriteAlbumList);
+    public void saveAlbumsToDatabase(final List<FavoriteAlbum> favoriteAlbumList) {
+        Completable.fromRunnable(new Runnable() {
+            @Override
+            public void run() {
+                iFavoriteAlbumsInteractor.saveAlbumsToDatabase(favoriteAlbumList);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .subscribe();
     }
 
     @Override
@@ -62,7 +78,7 @@ public class FavoriteAlbumsPresenter implements IFavoriteAlbumsPresenter {
     }
 
 
-    private List<FavoriteAlbum> castAlbumsFromDb(List<FavoriteAlbumTable> favoriteAlbumTableList){
+    private List<FavoriteAlbum> castAlbumsFromDb(List<FavoriteAlbumTable> favoriteAlbumTableList) {
         List<FavoriteAlbum> favoriteAlbums = new ArrayList<>();
 
         for (FavoriteAlbumTable item : favoriteAlbumTableList) {
@@ -76,5 +92,17 @@ public class FavoriteAlbumsPresenter implements IFavoriteAlbumsPresenter {
         }
 
         return favoriteAlbums;
+    }
+
+    @Override
+    public void onDestroy() {
+        disposeRequest();
+    }
+
+    private void disposeRequest() {
+        if (disposable != null) {
+            if (!disposable.isDisposed())
+                disposable.dispose();
+        }
     }
 }

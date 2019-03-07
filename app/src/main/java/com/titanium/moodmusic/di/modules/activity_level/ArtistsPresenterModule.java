@@ -11,8 +11,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module
@@ -43,10 +45,11 @@ public class ArtistsPresenterModule {
 
     @Singleton
     @Provides
-    public Retrofit providesRetrofit(Converter.Factory converter){
+    public Retrofit providesRetrofit(Converter.Factory converter, CallAdapter.Factory rxConverter){
         return new Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(converter)
+                .addCallAdapterFactory(rxConverter)
                 .build();
     }
 
@@ -54,5 +57,11 @@ public class ArtistsPresenterModule {
     @Provides
     public Converter.Factory providesConverterFactory(){
         return GsonConverterFactory.create();
+    }
+
+    @Singleton
+    @Provides
+    public CallAdapter.Factory providesCallAdapterFactory(){
+        return RxJava2CallAdapterFactory.create();
     }
 }

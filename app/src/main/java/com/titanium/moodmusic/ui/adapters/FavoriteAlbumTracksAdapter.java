@@ -21,6 +21,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/** Класс отвечает за заполнение, отображение, взаимодействие,
+ *  преобразование данных в RecyclerView треков, которые находятся в альбомах **/
+
 public class FavoriteAlbumTracksAdapter extends RecyclerView.Adapter<FavoriteAlbumTracksAdapter.AlbumDetailHolder> {
 
     private ItemDeleteBtnClickListener itemDeleteBtnClickListener;

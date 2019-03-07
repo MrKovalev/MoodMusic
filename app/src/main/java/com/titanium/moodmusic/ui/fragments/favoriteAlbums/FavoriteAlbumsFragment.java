@@ -42,6 +42,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
+/** Класс отвечает за отображение данных, взаимодействие с пользователем **/
+
 public class FavoriteAlbumsFragment extends BaseFragment
             implements IFavoriteAlbumsView{
 
@@ -134,6 +136,12 @@ public class FavoriteAlbumsFragment extends BaseFragment
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        favoriteAlbumsPresenter.onDestroy();
     }
 
     @Override

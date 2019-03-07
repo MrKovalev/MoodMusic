@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
+/** Класс отвечает за сериализацию и десериализацию списка таблицы альбомов, которые сохраняются в базу**/
 public class TrackTypeConverter {
 
     @TypeConverter
