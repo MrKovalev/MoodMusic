@@ -1,7 +1,5 @@
 package com.titanium.moodmusic.data.model.favoriteAlbums;
 
-import android.util.Log;
-
 import com.titanium.moodmusic.data.model.tracks.Track;
 
 import java.util.ArrayList;

@@ -1,7 +1,8 @@
 package com.titanium.moodmusic.di.modules.activity_level;
 
 import android.content.Context;
-import android.support.v4.app.FragmentManager;
+
+import androidx.fragment.app.FragmentManager;
 
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
 
@@ -16,14 +17,14 @@ public class MusicActivityAdapterModule {
     private Context context;
     private FragmentManager fragmentManager;
 
-    public MusicActivityAdapterModule(FragmentManager fragmentManager,Context context) {
+    public MusicActivityAdapterModule(FragmentManager fragmentManager, Context context) {
         this.context = context;
         this.fragmentManager = fragmentManager;
     }
 
     @Singleton
     @Provides
-    public MainPagerAdapter providesMusicMainPagerAdapter(){
-        return new MainPagerAdapter(fragmentManager,context);
+    public MainPagerAdapter providesMusicMainPagerAdapter() {
+        return new MainPagerAdapter(fragmentManager, context);
     }
 }

@@ -1,13 +1,13 @@
 package com.titanium.moodmusic.ui.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.util.Log;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.ui.fragments.artists.ArtistsFragment;
@@ -16,8 +16,6 @@ import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
 import java.lang.ref.WeakReference;
 import java.util.Hashtable;
-
-/** Класс отвечает настройку фрагментов в основной активити **/
 
 public class MainPagerAdapter extends FragmentPagerAdapter {
 

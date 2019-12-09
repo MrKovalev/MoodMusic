@@ -5,7 +5,6 @@ import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.Single;
 
 

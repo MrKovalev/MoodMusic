@@ -1,22 +1,19 @@
 package com.titanium.moodmusic.ui.activities;
 
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 import com.titanium.moodmusic.R;
-import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 import com.titanium.moodmusic.data.model.tracks.Track;
-import com.titanium.moodmusic.di.components.*;
+import com.titanium.moodmusic.di.components.DaggerMusicActivityComponent;
 import com.titanium.moodmusic.di.modules.activity_level.MusicActivityAdapterModule;
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
 import com.titanium.moodmusic.ui.fragments.artists.ArtistsFragment;
@@ -26,7 +23,6 @@ import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 import com.titanium.moodmusic.utils.RateUtils;
 import com.titanium.moodmusic.utils.ShareUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

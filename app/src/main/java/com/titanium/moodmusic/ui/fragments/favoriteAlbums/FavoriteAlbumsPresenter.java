@@ -1,7 +1,5 @@
 package com.titanium.moodmusic.ui.fragments.favoriteAlbums;
 
-import android.util.Log;
-
 import com.titanium.moodmusic.data.db.entity.FavoriteAlbumTable;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 
@@ -13,8 +11,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-
-/** Класс посредник-обработчик между View и Model **/
 
 public class FavoriteAlbumsPresenter implements IFavoriteAlbumsPresenter {
 

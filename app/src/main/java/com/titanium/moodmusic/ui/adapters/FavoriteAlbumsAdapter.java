@@ -1,14 +1,14 @@
 package com.titanium.moodmusic.ui.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
@@ -20,9 +20,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
-/** Класс отвечает за заполнение, отображение, взаимодействие,
- *  преобразование данных в RecyclerView избранных альбомов **/
 
 public class FavoriteAlbumsAdapter extends RecyclerView.Adapter<FavoriteAlbumsAdapter.AlbumsHolder> {
 

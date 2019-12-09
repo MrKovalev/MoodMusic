@@ -2,11 +2,6 @@ package com.titanium.moodmusic.ui.fragments.artists;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,15 +11,21 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
+
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.api.Constants;
 import com.titanium.moodmusic.data.model.artists.Artist;
+import com.titanium.moodmusic.di.components.DaggerArtistsComponent;
+import com.titanium.moodmusic.di.modules.activity_level.ArtistsAdapterModule;
+import com.titanium.moodmusic.di.modules.activity_level.ArtistsPresenterModule;
 import com.titanium.moodmusic.ui.adapters.ArtistsAdapter;
 import com.titanium.moodmusic.ui.adapters.MainPagerAdapter;
 import com.titanium.moodmusic.ui.fragments.BaseFragment;
-import com.titanium.moodmusic.di.modules.activity_level.ArtistsAdapterModule;
-import com.titanium.moodmusic.di.modules.activity_level.ArtistsPresenterModule;
-import com.titanium.moodmusic.di.components.*;
 import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
 import java.util.List;
@@ -124,7 +125,7 @@ public class ArtistsFragment extends BaseFragment
         View view = inflater.inflate(R.layout.artists_fragment, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
         artistsRecyclerView.setLayoutManager(linearLayoutManager);
         artistsRecyclerView.setAdapter(artistsAdapter);
 

@@ -4,7 +4,6 @@ import com.titanium.moodmusic.data.model.responces.SearchArtistResponce;
 import com.titanium.moodmusic.data.model.responces.TopChartArtistsResponce;
 
 import io.reactivex.Single;
-import retrofit2.Call;
 
 public interface IArtistsInteractor {
     Single<TopChartArtistsResponce> getTopChartArtists(int page, int limit, String apiKey);

@@ -1,7 +1,7 @@
 package com.titanium.moodmusic.data.db.database;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.RoomDatabase;
+import androidx.room.Database;
+import androidx.room.RoomDatabase;
 
 import com.titanium.moodmusic.data.db.dao.MusicDao;
 import com.titanium.moodmusic.data.db.entity.FavoriteAlbumTable;

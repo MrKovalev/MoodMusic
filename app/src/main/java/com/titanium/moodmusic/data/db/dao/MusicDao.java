@@ -1,21 +1,17 @@
 package com.titanium.moodmusic.data.db.dao;
 
-import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
-import android.arch.persistence.room.Query;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
 
 import com.titanium.moodmusic.data.db.entity.FavoriteAlbumTable;
-import com.titanium.moodmusic.data.model.favoriteAlbums.FavoriteAlbum;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.Single;
 
-
-/** Класс содержит методы работы с базой данных **/
 @Dao
 public interface MusicDao {
 

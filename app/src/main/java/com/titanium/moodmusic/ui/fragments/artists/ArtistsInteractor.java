@@ -5,10 +5,7 @@ import com.titanium.moodmusic.data.model.responces.TopChartArtistsResponce;
 import com.titanium.moodmusic.network.LastFmArtistsCallsAPI;
 
 import io.reactivex.Single;
-import retrofit2.Call;
 import retrofit2.Retrofit;
-
-/** Класс отвечает за взаимодействие с данными, их получение из API, DB.. **/
 
 public class ArtistsInteractor implements IArtistsInteractor {
     private Retrofit retrofit;

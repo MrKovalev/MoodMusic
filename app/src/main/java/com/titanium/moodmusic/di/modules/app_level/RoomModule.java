@@ -1,7 +1,8 @@
 package com.titanium.moodmusic.di.modules.app_level;
 
 import android.app.Application;
-import android.arch.persistence.room.Room;
+
+import androidx.room.Room;
 
 import com.titanium.moodmusic.data.db.dao.MusicDao;
 import com.titanium.moodmusic.data.db.database.MusicDatabase;

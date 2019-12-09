@@ -5,6 +5,7 @@ import com.titanium.moodmusic.di.modules.activity_level.TracksPresenterModule;
 import com.titanium.moodmusic.ui.fragments.tracks.TracksFragment;
 
 import javax.inject.Singleton;
+
 import dagger.Component;
 
 @Singleton

@@ -6,11 +6,9 @@ import com.titanium.moodmusic.data.model.responces.TopChartTracksResponce;
 import com.titanium.moodmusic.data.model.responces.TracksByArtistResponce;
 
 import io.reactivex.Single;
-import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-/** Запросы к API Last.fm для треков **/
 public interface LastFmTracksCallsAPI {
 
     @GET(Constants.Endpoint.TOP_CHART_TRACKS_SEARCH)

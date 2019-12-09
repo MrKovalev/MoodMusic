@@ -1,9 +1,9 @@
 package com.titanium.moodmusic.ui.fragments.tracks;
 
-import com.titanium.moodmusic.data.model.responces.TracksByArtistResponce;
-import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.data.model.responces.SearchTrackResponce;
 import com.titanium.moodmusic.data.model.responces.TopChartTracksResponce;
+import com.titanium.moodmusic.data.model.responces.TracksByArtistResponce;
+import com.titanium.moodmusic.data.model.tracks.Track;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +13,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-/** Класс посредник-обработчик между View и Model **/
 
 public class TracksPresenter implements ITracksPresenter {
 

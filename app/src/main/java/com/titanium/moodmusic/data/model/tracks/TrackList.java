@@ -1,7 +1,6 @@
 package com.titanium.moodmusic.data.model.tracks;
 
 import com.google.gson.annotations.SerializedName;
-import com.titanium.moodmusic.data.model.tracks.Track;
 
 import java.util.List;
 

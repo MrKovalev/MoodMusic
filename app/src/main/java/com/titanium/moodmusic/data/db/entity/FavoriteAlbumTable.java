@@ -1,15 +1,13 @@
 package com.titanium.moodmusic.data.db.entity;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverter;
-import android.arch.persistence.room.TypeConverters;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
 import com.titanium.moodmusic.data.model.tracks.Track;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Entity
 public class FavoriteAlbumTable {

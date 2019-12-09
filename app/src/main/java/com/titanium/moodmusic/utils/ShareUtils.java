@@ -2,8 +2,6 @@ package com.titanium.moodmusic.utils;
 
 import android.content.Intent;
 
-/** Вспомогательный класс для реализации функции рекомендации приложения **/
-
 public class ShareUtils {
 
     public static Intent shareAppAction(){

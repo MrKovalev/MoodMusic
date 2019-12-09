@@ -1,29 +1,23 @@
 package com.titanium.moodmusic.ui.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.titanium.moodmusic.R;
 import com.titanium.moodmusic.data.model.artists.Artist;
-import com.titanium.moodmusic.data.model.tracks.Track;
 import com.titanium.moodmusic.utils.ImageLoadUtils;
-
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
-/** Класс отвечает за заполнение, отображение, взаимодействие,
- *  преобразование данных в RecyclerView исполнителей **/
 
 public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsHolder> {
 

@@ -1,13 +1,10 @@
 package com.titanium.moodmusic.ui.fragments.tracks;
 
-import com.titanium.moodmusic.data.model.responces.SearchArtistResponce;
 import com.titanium.moodmusic.data.model.responces.SearchTrackResponce;
-import com.titanium.moodmusic.data.model.responces.TopChartArtistsResponce;
 import com.titanium.moodmusic.data.model.responces.TopChartTracksResponce;
 import com.titanium.moodmusic.data.model.responces.TracksByArtistResponce;
 
 import io.reactivex.Single;
-import retrofit2.Call;
 
 public interface ITracksInteractor {
     Single<TopChartTracksResponce> getTopChartTracks(int page, int limit, String apiKey);

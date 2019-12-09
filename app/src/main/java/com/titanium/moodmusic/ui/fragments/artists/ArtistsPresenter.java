@@ -1,27 +1,17 @@
 package com.titanium.moodmusic.ui.fragments.artists;
 
-import android.util.Log;
-
 import com.titanium.moodmusic.data.model.artists.Artist;
 import com.titanium.moodmusic.data.model.responces.SearchArtistResponce;
 import com.titanium.moodmusic.data.model.responces.TopChartArtistsResponce;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-/** Класс посредник-обработчик между View и Model **/
+import io.reactivex.schedulers.Schedulers;
 
 public class ArtistsPresenter implements IArtistsPresenter {
 
