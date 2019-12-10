@@ -6,7 +6,7 @@
     android:background="@color/colorPrimaryDark"
     android:clickable="true"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.fragments.favoriteAlbumTracks.FavoriteAlbumTracksFragment">
+    tools:context=".feature.album.detail.ui.FavoriteAlbumTracksFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

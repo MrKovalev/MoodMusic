@@ -1,6 +1,6 @@
 package com.titanium.moodmusic;
 
-import com.titanium.moodmusic.data.model.artists.Artist;
+import com.titanium.moodmusic.feature.artists.data.model.Artist;
 
 import org.junit.Assert;
 import org.junit.Test;
