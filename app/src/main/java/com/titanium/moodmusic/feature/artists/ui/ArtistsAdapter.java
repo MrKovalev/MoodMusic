@@ -1,117 +1,126 @@
 package com.titanium.moodmusic.feature.artists.ui;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.titanium.moodmusic.R;
-import com.titanium.moodmusic.feature.artists.data.model.Artist;
-import com.titanium.moodmusic.app.utils.ImageLoadUtils;
+import com.titanium.moodmusic.component.common.Loadable;
+import com.titanium.moodmusic.feature.artists.domain.entities.Artist;
+import com.titanium.moodmusic.shared.loading.LoadingHolder;
+
 import java.util.ArrayList;
 import java.util.List;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class ArtistsAdapter extends RecyclerView.Adapter<ArtistsAdapter.ArtistsHolder> {
+public class ArtistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<Artist> artistList = new ArrayList<>();
-    private ItemArtistClickListener artistItemClickListener;
-    private Context context;
+    private static final int ARTIST_ITEM_TYPE = 1;
+    private static final int LOADING_ITEM_TYPE = 2;
 
-    public ArtistsAdapter(Context context) {
-        this.context = context;
+    private final List<Artist> artists = new ArrayList<>();
+    private final Loadable loadable;
+    private boolean isLoadingItemVisible = false;
+
+    ArtistsAdapter(Loadable loadable) {
+        this.loadable = loadable;
+
+        setHasStableIds(true);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        boolean isLoadingItem = position == getLoadingItemPosition()
+                && isLoadingItemVisible;
+
+        if (isLoadingItem) {
+            return LOADING_ITEM_TYPE;
+        } else {
+            return ARTIST_ITEM_TYPE;
+        }
+    }
+
+    private int getLoadingItemPosition() {
+        return artists.size() - 1;
     }
 
     @NonNull
     @Override
-    public ArtistsHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater
-                .from(viewGroup.getContext())
-                .inflate(R.layout.artist_item, viewGroup, false);
-        return new ArtistsHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+
+        switch (viewType) {
+            case ARTIST_ITEM_TYPE:
+                View artist = inflater.inflate(R.layout.item_artist, viewGroup, false);
+                return new ArtistHolder(artist);
+            case LOADING_ITEM_TYPE:
+                View loader = inflater.inflate(R.layout.item_loading, viewGroup, false);
+                return new LoadingHolder(loader);
+            default:
+                throw new IllegalArgumentException("Unknown holder type");
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ArtistsHolder artistsHolder, int i) {
-        final Artist itemArtist = artistList.get(i);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
+        final Artist itemArtist = artists.get(i);
 
-        ImageLoadUtils.loadImage(context, itemArtist.getImageUrl()
-                , R.mipmap.noavatar, artistsHolder.artistsImageView);
-        artistsHolder.artistsName.setText(itemArtist.getName());
+        if (holder instanceof ArtistHolder) {
+            ((ArtistHolder) holder).bind(itemArtist);
+        } else if (holder instanceof LoadingHolder) {
+            loadable.onLoad();
+        } else {
+            throw new IllegalArgumentException("Unknown holder type");
+        }
     }
 
     @Override
     public int getItemCount() {
-        if (artistList != null) {
-            return artistList.size();
-        }
-        return 0;
+        return artists.size();
     }
 
-    public void setArtistList(List<Artist> artistList) {
-        for (Artist artist : artistList) {
-            if (checkUniqueArtist(artist))
-                this.artistList.add(artist);
+    @Override
+    public long getItemId(int position) {
+        Artist artist = artists.get(position);
+        return artist.hashCode();
+    }
+
+    void setArtists(List<Artist> artists) {
+        int beforeSize = getItemCount();
+
+        this.artists.addAll(artists);
+
+        int afterSize = getItemCount();
+
+        if (afterSize > beforeSize) {
+            notifyItemRangeChanged(beforeSize, afterSize);
         }
+    }
+
+    void clearArtistList() {
+        isLoadingItemVisible = false;
+        artists.clear();
+
         notifyDataSetChanged();
     }
 
-    public void setArtist(Artist artist) {
-        this.artistList.add(artist);
-        notifyItemInserted(getItemCount() + 1);
-    }
-
-    public Artist getArtistByPosition(int position) {
-        return artistList.get(position);
-    }
-
-    public void clearArtistList() {
-        if (artistList != null) {
-            artistList.clear();
-            notifyDataSetChanged();
-        }
-    }
-
-    private boolean checkUniqueArtist(Artist artistForAnalyse) {
-        for (Artist artist : this.artistList) {
-            if (artistForAnalyse.getMbid().equalsIgnoreCase(artist.getMbid()))
-                return false;
+    void setLoadingItem() {
+        if (!isLoadingItemVisible) {
+            int position = getLoadingItemPosition();
+            notifyItemInserted(position);
         }
 
-        return true;
+        isLoadingItemVisible = true;
     }
 
-    public void setArtistItemClickListener(ItemArtistClickListener itemClickListener) {
-        this.artistItemClickListener = itemClickListener;
-    }
-
-    class ArtistsHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.img_artist)
-        ImageView artistsImageView;
-        @BindView(R.id.txt_artist_name)
-        TextView artistsName;
-
-        ArtistsHolder(@NonNull View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+    void removeLoadingItem() {
+        if (isLoadingItemVisible) {
+            int position = getLoadingItemPosition();
+            notifyItemRemoved(position);
         }
 
-        @OnClick(R.id.cv_artist)
-        void onItemClicked() {
-            if (artistItemClickListener != null)
-                artistItemClickListener.onItemClick(getArtistByPosition(getAdapterPosition()));
-        }
-    }
-
-    public interface ItemArtistClickListener {
-        void onItemClick(Artist artist);
+        isLoadingItemVisible = false;
     }
 }

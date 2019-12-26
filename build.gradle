@@ -9,10 +9,14 @@ buildscript {
     }
 }
 
+plugins {
+    id "scabbard.gradle" version "0.1.0"
+}
+
 ext {
     applicationId = "com.titanium.moodmusic"
 
-    minApiVersion = 17
+    minApiVersion = 19
     maxApiVersion = 28
 
     versionCode = 1
@@ -27,6 +31,7 @@ ext {
     rxJavaVersion = "2.2.7"
     rxAndroidVersion = "2.1.1"
     retrofitVersion = "2.5.0"
+    okhttpVersion = "3.11.0"
     roomVersion = "2.2.2"
     gsonVersion = "2.8.5"
     glideVersion = "4.9.0"
@@ -49,4 +54,8 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+scabbard {
+    enabled true
 }

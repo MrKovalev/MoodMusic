@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Title" parent="@android:style/TextAppearance">
+        <item name="android:textSize">@dimen/title</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Header" parent="@android:style/TextAppearance">
+        <item name="android:textSize">@dimen/header</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SubHeader" parent="@android:style/TextAppearance">
+        <item name="android:textSize">@dimen/subHeader</item>
+    </style>
+
+    <style name="Body" parent="@android:style/TextAppearance">
+        <item name="android:textSize">@dimen/body</item>
+    </style>
+
+    <style name="ButtonText" parent="@android:style/TextAppearance">
+        <item name="android:textSize">@dimen/button</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

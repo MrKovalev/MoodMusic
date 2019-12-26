@@ -1,156 +1,147 @@
 package com.titanium.moodmusic.feature.tracks.presentation;
 
-import com.titanium.moodmusic.feature.tracks.data.model.SearchTrackResponce;
-import com.titanium.moodmusic.feature.tracks.data.model.TopChartTracksResponce;
-import com.titanium.moodmusic.feature.tracks.data.model.TracksByArtistResponce;
-import com.titanium.moodmusic.feature.tracks.data.model.Track;
-import com.titanium.moodmusic.feature.tracks.domain.ITracksInteractor;
+import com.titanium.moodmusic.component.presentation.BasePresenter;
+import com.titanium.moodmusic.feature.tracks.domain.interactors.TracksInteractor;
+import com.titanium.moodmusic.shared.albums.domain.entiries.Album;
+import com.titanium.moodmusic.shared.albums.domain.interactors.AlbumsInteractor;
+import com.titanium.moodmusic.shared.error.Message;
+import com.titanium.moodmusic.shared.error.handler.ErrorHandler;
+import com.titanium.moodmusic.shared.search.domain.usecases.SearchQueryInteractor;
+import com.titanium.moodmusic.shared.tracks.Track;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import moxy.InjectViewState;
 
-public class TracksPresenter implements ITracksPresenter {
+@InjectViewState
+public class TracksPresenter extends BasePresenter<TracksView> {
 
-    private ITracksView iTracksView;
-    private ITracksInteractor iTracksInteractor;
-    private Disposable disposable;
+    private final TracksInteractor tracksInteractor;
+    private final AlbumsInteractor albumsInteractor;
+    private final SearchQueryInteractor<String> searchQueryInteractor;
+    private final ErrorHandler errorHandler;
 
-    public TracksPresenter(ITracksView iTracksView, ITracksInteractor iTracksInteractor) {
-        this.iTracksView = iTracksView;
-        this.iTracksInteractor = iTracksInteractor;
+    private static final int SEARCH_DEFAULT_PAGE = 1;
+    private static final int TRACKS_LIMIT = 15;
+
+    private int trackPageCounter = 1;
+
+    @Inject
+    public TracksPresenter(TracksInteractor tracksInteractor, AlbumsInteractor albumsInteractor, SearchQueryInteractor<String> searchQueryInteractor, ErrorHandler errorHandler) {
+        this.tracksInteractor = tracksInteractor;
+        this.albumsInteractor = albumsInteractor;
+        this.searchQueryInteractor = searchQueryInteractor;
+        this.errorHandler = errorHandler;
     }
 
     @Override
-    public void getTopChartTracks(int page, int limit, String apiKey) {
-        disposeRequest();
+    protected void onFirstViewAttach() {
+        onLoadTopChartTracks();
+        initSearchQuery();
+    }
 
-        iTracksView.showProgress();
-        disposable = iTracksInteractor.getTopChartTracks(page, limit, apiKey)
+    public void onRefreshTracks() {
+        trackPageCounter = 1;
+
+        getViewState().clearTracks();
+        onLoadTopChartTracks();
+    }
+
+    public void onSearchTrack(String query) {
+        searchQueryInteractor.add(query);
+    }
+
+    private void initSearchQuery() {
+        Disposable disposable = searchQueryInteractor.getObservable()
+                .distinctUntilChanged()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doAfterNext(query -> {
+                    getViewState().clearTracks();
+                    getViewState().showProgress();
+                })
+                .switchMap(this::searchTracks)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::successSearched, this::handleError);
+
+        unsubscribeOnDestroy(disposable);
+    }
+
+    private Observable<List<Track>> searchTracks(String query) {
+        return tracksInteractor.searchTrack(TRACKS_LIMIT, SEARCH_DEFAULT_PAGE, query, null)
+                .subscribeOn(Schedulers.io())
+                .toObservable();
+    }
+
+    private void successSearched(List<Track> tracks) {
+        getViewState().hideProgress();
+        getViewState().hideLoadingItem();
+        getViewState().showSearchedTracks(tracks);
+    }
+
+    public void onLoadTopChartTracks() {
+        getViewState().showProgress();
+
+        Disposable disposable = tracksInteractor.getTopChartTracks(trackPageCounter, TRACKS_LIMIT)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<TopChartTracksResponce, List<Track>>() {
-                    @Override
-                    public List<Track> apply(TopChartTracksResponce topChartTracksResponce) throws Exception {
-                        if (topChartTracksResponce != null && topChartTracksResponce.getTracksResponce() != null) {
-                            return topChartTracksResponce.getTracksResponce().getTrackList();
-                        }
+                .doFinally(getViewState()::hideProgress)
+                .subscribe(this::processChunk, this::handleError);
 
-                        return new ArrayList<Track>();
-                    }
-                })
-                .subscribe(new Consumer<List<Track>>() {
-                    @Override
-                    public void accept(List<Track> trackList) throws Exception {
-                        if (iTracksView != null) {
-                            iTracksView.hideProgress();
-                            iTracksView.loadTracks(trackList);
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        if (iTracksView != null) {
-                            iTracksView.hideProgress();
-                            iTracksView.showError();
-                        }
-                    }
-                });
+        unsubscribeOnDestroy(disposable);
     }
 
-    @Override
-    public void searchTrack(int limit, int page, String nameTrack, String nameArtist, String apiKey) {
-        disposeRequest();
+    private void processChunk(List<Track> trackList) {
+        getViewState().showLoadingItem();
+        getViewState().showLoadedTracks(trackList);
 
-        iTracksView.showProgress();
-        disposable = iTracksInteractor.searchTrack(limit, page, nameTrack, nameArtist, apiKey)
+        trackPageCounter++;
+    }
+
+    public void onOpenTrackDetailClicked(Track track) {
+        getViewState().openTrackDetail(track);
+    }
+
+    public void onAddTrackClicked(Track selectedTrack) {
+        getViewState().showProgress();
+
+        Disposable disposable = albumsInteractor.getFavoriteAlbums()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<SearchTrackResponce, List<Track>>() {
-                    @Override
-                    public List<Track> apply(SearchTrackResponce searchTrackResponce) throws Exception {
-                        if (searchTrackResponce != null && searchTrackResponce.getTrackListResponce() != null) {
-                            return searchTrackResponce.getTrackListResponce().getTrackListMatches().getTrackList();
-                        }
+                .doFinally(getViewState()::hideProgress)
+                .subscribe(
+                        albums -> getViewState().showAddTrackDialog(selectedTrack, albums),
+                        this::handleError
+                );
 
-                        return new ArrayList<Track>();
-                    }
-                })
-                .subscribe(new Consumer<List<Track>>() {
-                    @Override
-                    public void accept(List<Track> trackList) throws Exception {
-                        if (iTracksView != null) {
-                            iTracksView.hideProgress();
-                            iTracksView.searchTracks(trackList);
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        if (iTracksView != null) {
-                            iTracksView.hideProgress();
-                            iTracksView.showError();
-                        }
-                    }
-                });
+        unsubscribeOnDestroy(disposable);
     }
 
-    @Override
-    public void searchTracksByArtist(String nameArtist, String mbid, int limit, int page, String apiKey) {
-        disposeRequest();
+    public void onSaveTrack(Album selectedAlbum, Track selectedTrack) {
+        getViewState().showProgress();
+        selectedAlbum.addNewTrack(selectedTrack);
 
-        iTracksView.showProgress();
-        disposable = iTracksInteractor.searchTracksByArtist(nameArtist, mbid, limit, page, apiKey)
+        Disposable disposable = albumsInteractor.updateAlbumWithNewTracks(selectedAlbum)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<TracksByArtistResponce, List<Track>>() {
-                    @Override
-                    public List<Track> apply(TracksByArtistResponce tracksByArtistResponce) throws Exception {
-                        if (tracksByArtistResponce != null && tracksByArtistResponce.getTracksByArtistResponce() != null) {
-                            return tracksByArtistResponce.getTracksByArtistResponce().getTrackList();
-                        }
+                .doFinally(getViewState()::hideProgress)
+                .subscribe(
+                        getViewState()::showSuccessSavedTrack,
+                        this::handleError
+                );
 
-                        return new ArrayList<Track>();
-                    }
-                })
-                .subscribe(new Consumer<List<Track>>() {
-                    @Override
-                    public void accept(List<Track> trackList) throws Exception {
-                        if (iTracksView != null) {
-                            iTracksView.hideProgress();
-                            iTracksView.searchTracksByArtist(trackList);
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        if (iTracksView != null) {
-                            iTracksView.hideProgress();
-                            iTracksView.showError();
-                        }
-                    }
-                });
+        unsubscribeOnDestroy(disposable);
     }
 
-    @Override
-    public void openTrackDetail(List<Track> trackList, Track track, int position) {
-        iTracksView.openTrackDetail(trackList, track, position);
-    }
+    private void handleError(Throwable throwable) {
+        Message message = errorHandler.processError(throwable);
 
-    @Override
-    public void onDestroy() {
-        disposeRequest();
-    }
-
-    private void disposeRequest() {
-        if (disposable != null) {
-            if (!disposable.isDisposed())
-                disposable.dispose();
-        }
+        getViewState().hideProgress();
+        getViewState().showError(message);
     }
 }

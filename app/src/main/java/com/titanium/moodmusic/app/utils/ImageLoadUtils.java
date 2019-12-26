@@ -9,12 +9,12 @@ import java.lang.ref.WeakReference;
 
 public class ImageLoadUtils {
 
-    public static void loadImage(Context context, String imgUrl, int placeHolderResourseId, ImageView imageView){
+    public static void loadImage(Context context, String imgUrl, int placeHolderResourсeId, ImageView imageView) {
         WeakReference<Context> weakReferenceContext = new WeakReference<>(context);
         Glide.with(weakReferenceContext.get())
                 .asBitmap()
                 .load(imgUrl)
-                .placeholder(placeHolderResourseId)
+                .placeholder(placeHolderResourсeId)
                 .into(imageView);
     }
 }

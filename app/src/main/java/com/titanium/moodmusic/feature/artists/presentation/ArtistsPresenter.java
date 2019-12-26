@@ -1,110 +1,116 @@
 package com.titanium.moodmusic.feature.artists.presentation;
 
-import com.titanium.moodmusic.feature.artists.data.model.Artist;
-import com.titanium.moodmusic.feature.artists.data.model.SearchArtistResponce;
-import com.titanium.moodmusic.feature.artists.data.model.TopChartArtistsResponce;
-import com.titanium.moodmusic.feature.artists.domain.IArtistsInteractor;
+import com.titanium.moodmusic.component.presentation.BasePresenter;
+import com.titanium.moodmusic.feature.artists.domain.entities.Artist;
+import com.titanium.moodmusic.feature.artists.domain.interactors.ArtistsInteractor;
+import com.titanium.moodmusic.shared.error.Message;
+import com.titanium.moodmusic.shared.error.handler.ErrorHandler;
+import com.titanium.moodmusic.shared.search.domain.usecases.SearchQueryInteractor;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import moxy.InjectViewState;
 
-public class ArtistsPresenter implements IArtistsPresenter {
+@InjectViewState
+public class ArtistsPresenter extends BasePresenter<ArtistsView> {
 
-    IArtistsView iArtistsView;
-    IArtistsInteractor iArtistsInteractor;
-    private Disposable disposable;
+    private final ArtistsInteractor artistsInteractor;
+    private final SearchQueryInteractor<String> searchQueryInteractor;
+    private final ErrorHandler errorHandler;
 
-    public ArtistsPresenter(IArtistsView iArtistsView, IArtistsInteractor iArtistsInteractor) {
-        this.iArtistsView = iArtistsView;
-        this.iArtistsInteractor = iArtistsInteractor;
-    }
+    private int artistsPageCounter = 1;
+    private boolean isSearchActive = false;
 
-    public void getTopChartArtists(int page, int limit, String apiKey) {
-        iArtistsView.showProgress();
+    private static final int SEARCH_DEFAULT_PAGE = 1;
+    private static final int ARTISTS_LIMIT = 10;
 
-        disposable = iArtistsInteractor.getTopChartArtists(page, limit, apiKey)
-                .subscribeOn(Schedulers.io())  //запускаем запрос и получаем рузультат в фоновом потоке
-                .observeOn(AndroidSchedulers.mainThread()) //возвращаемся в ui поток
-                .map(new Function<TopChartArtistsResponce, List<Artist>>() { // через map преобразовываем TopChartArtistsResponce в List<Artist>
-                    @Override
-                    public List<Artist> apply(TopChartArtistsResponce topChartArtistsResponce) throws Exception {
-                        if (topChartArtistsResponce != null && topChartArtistsResponce.getArtistListResponce() != null) {
-                            return topChartArtistsResponce.getArtistListResponce().getArtistList();
-                        }
-                        return new ArrayList<Artist>();
-                    }
-                })
-                .subscribe(new Consumer<List<Artist>>() {    //при успешном получении списка артистов отдаем во View
-                    @Override
-                    public void accept(List<Artist> artists) throws Exception {
-                        if (iArtistsView != null) {
-                            iArtistsView.hideProgress();
-                            iArtistsView.loadArtists(artists);
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {  //выкидываем ошибку при проблемах с ответом
-                        if (iArtistsView != null) {
-                            iArtistsView.hideProgress();
-                            iArtistsView.showError();
-                        }
-                    }
-                });
+    @Inject
+    public ArtistsPresenter(ArtistsInteractor artistsInteractor, SearchQueryInteractor<String> searchQueryInteractor, ErrorHandler errorHandler) {
+        this.artistsInteractor = artistsInteractor;
+        this.searchQueryInteractor = searchQueryInteractor;
+        this.errorHandler = errorHandler;
     }
 
     @Override
-    public void searchArtist(int page, int limit, String name, String apiKey) {
-        disposeRequest();
+    protected void onFirstViewAttach() {
+        onLoadTopChartArtists();
+        initSearchQuery();
+    }
 
-        iArtistsView.showProgress();
-        disposable = iArtistsInteractor.searchArtist(page, limit, name, apiKey)
-                .subscribeOn(Schedulers.io())
+    public void onRefreshArtists() {
+        isSearchActive = false;
+        artistsPageCounter = 1;
+
+        getViewState().clearArtists();
+        onLoadTopChartArtists();
+    }
+
+    public void onSearchArtists(String query) {
+        isSearchActive = true;
+        searchQueryInteractor.add(query);
+    }
+
+    private void initSearchQuery() {
+        Disposable disposable = searchQueryInteractor.getObservable()
+                .distinctUntilChanged()
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<SearchArtistResponce, List<Artist>>() {
-                    @Override
-                    public List<Artist> apply(SearchArtistResponce searchArtistResponce) throws Exception {
-                        if (searchArtistResponce != null && searchArtistResponce.getSearchArtist() != null) {
-                            return searchArtistResponce.getSearchArtist().getArtistListMatches().getArtistList();
-                        }
-
-                        return new ArrayList<Artist>();
-                    }
+                .doOnNext(query -> {
+                    getViewState().clearArtists();
+                    getViewState().showProgress();
                 })
-                .subscribe(new Consumer<List<Artist>>() {
-                    @Override
-                    public void accept(List<Artist> artists) throws Exception {
-                        if (iArtistsView != null) {
-                            iArtistsView.hideProgress();
-                            iArtistsView.searchArtists(artists);
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        if (iArtistsView != null) {
-                            iArtistsView.hideProgress();
-                            iArtistsView.showError();
-                        }
-                    }
-                });
+                .switchMap(this::searchArtists)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::successSearched, this::handleError);
+
+        unsubscribeOnDestroy(disposable);
     }
 
-    @Override
-    public void onDestroy() {
-        disposeRequest();
+    private Observable<List<Artist>> searchArtists(String query) {
+        return artistsInteractor.searchArtist(SEARCH_DEFAULT_PAGE, ARTISTS_LIMIT, query)
+                .subscribeOn(Schedulers.io())
+                .toObservable();
     }
 
-    private void disposeRequest() {
-        if (disposable != null) {
-            if (!disposable.isDisposed())
-                disposable.dispose();
+    private void successSearched(List<Artist> artists) {
+        getViewState().hideProgress();
+        getViewState().hideLoadingItem();
+        getViewState().showSearchedArtists(artists);
+    }
+
+    public void onLoadTopChartArtists() {
+        if (!isSearchActive) {
+            getViewState().showProgress();
+
+            Disposable disposable = artistsInteractor.getTopChartArtists(artistsPageCounter, ARTISTS_LIMIT)
+                    .subscribeOn(Schedulers.io())
+                    .flattenAsObservable(artists -> artists)
+                    .take(ARTISTS_LIMIT)//Костыль. Cервер last.fm тупит и иногда не возвращает список согласно лимиту, берем только порциями по 10
+                    .toList()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doFinally(getViewState()::hideProgress)
+                    .subscribe(this::processChunk, this::handleError);
+
+            unsubscribeOnDestroy(disposable);
         }
+    }
+
+    private void processChunk(List<Artist> artistList) {
+        getViewState().showLoadingItem();
+        getViewState().showChartArtists(artistList);
+
+        artistsPageCounter++;
+    }
+
+    private void handleError(Throwable throwable) {
+        Message message = errorHandler.processError(throwable);
+
+        getViewState().hideProgress();
+        getViewState().showError(message);
     }
 }

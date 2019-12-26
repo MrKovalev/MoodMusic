@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#101010</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#D81B60</color>
-    <color name="colorArtistText">#FFFF</color>
-    <color name="colorArtistBackground">#61000000</color>
-    <color name="colorAppOrange">#FF9F0A</color>
+    <color name="gray400">#9E9E9E</color>
+    <color name="gray800">#424242</color>
+    <color name="gray900">#212121</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="orange400">#FFA726</color>
+    <color name="blackTransparent">#61000000</color>
+
+    <color name="primary">@color/gray400</color>
+    <color name="primaryDark">@color/black</color>
+    <color name="accent">@color/gray400</color>
+    <color name="window">@color/gray900</color>
+    <color name="transparentPanel">@color/blackTransparent</color>
 </resources>
