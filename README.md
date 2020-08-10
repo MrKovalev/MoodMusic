@@ -1,24 +1,19 @@
 # Mood Music
 
-# Описание приложения:
-Приложение позволяет просмотреть популярные группы музыкальных исполнителей, треки, формировать собственные альбомы треков.
-Также присутствует возможность поиска как артиста, так и отдельных треков с последующим просмотром подробной информации, прослушивании (при наличии)
+# App description:
+The application allows you to view popular groups of music performers, tracks, create your own track albums.
+It is also possible to search for both the artist and individual tracks, followed by viewing detailed information, listening (if available)
 
-# Техническое описание и реализация:
-1. Приложение разбито по пакетам component, shared, feature в рамках одного gradle модуля. Такая разбивка позволяет при желании разбить приложение на модули без каких-дибо проблем. В рамках модулей Clean Arhitecture c MVP (Moxy) для presentation слоя. Общая архитектура позволяет легко вносить изменения и расширять функциональность при необходимости.
-2. Запросы к API сервера Last.fm реализованы с помощью Retrofit2 + Rxjava2
-3. Для реализации DI используется библиотека внедрения зависимостей Dagger2
-4. Использована ORM Room + Rxjava2 для сохранения и загрузки избранных альбомов с треками
-5. Добавлена библиотека Butteknife для упрощения работы с view элементами
-6. Реализована обработка и перехват ошибок
-7. Основная логика покрыта unit-тестами
-8. Реализована правильная обработка сохранения состояния при смене ориентации
-9. Экран треков и артистов можно протестировать без интернета при помощи стабов
-
-Планируется добавить:
-1. UI-тестов (экраны делаем через page object, сами тесты на espresso + какая-либо абстрация - barista и т.д)
-2. Перевести верстку на Constraint Layout
-3. Проверить на старых девайсах производительность списков (возможно добавить diff utils)
+# Technical description and implementation:
+1. The application is split into packages component, shared, feature within one gradle module. This breakdown allows you to split your application into modules, if desired, without any problems. As part of the Clean Arhitecture modules with MVP (Moxy) for the presentation layer. The overall architecture makes it easy to make changes and expand functionality as needed.
+2. Requests to the Last.fm server API are implemented using Retrofit2 + Rxjava2
+3. To implement DI, the Dagger2 dependency injection library is used
+4. Used ORM Room + Rxjava2 to save and load selected albums with tracks
+5. Added Butteknife library to simplify work with view elements
+6. Implemented error handling and interception
+7. The main logic is covered by unit tests
+8. Implemented correct processing of saving state when changing orientation
+9. The screen of tracks and artists can be tested without the Internet using stubs
 
 [![Screenshot-20190307-225452.png](https://i.postimg.cc/mDvQkYG7/Screenshot-20190307-225452.png)](https://postimg.cc/hz0J37vG)
 
